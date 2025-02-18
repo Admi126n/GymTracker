@@ -14,7 +14,7 @@ struct Stats: Codable, OptionSet {
 	static let distance = Stats(rawValue: 1 << 0)
 	static let time = Stats(rawValue: 1 << 1)
 	static let weight = Stats(rawValue: 1 << 2)
-	static let reps = Stats(rawValue: 1 << 3)
+	static let repetitions = Stats(rawValue: 1 << 3)
 	static let seatHeight = Stats(rawValue: 1 << 3)
 	
 	static let distanceAndTime: Stats = [.distance, .time]

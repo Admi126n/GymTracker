@@ -20,7 +20,7 @@ def main():
 
         files_in_target = []
         for file in target["files"]:
-            if any(pattern in file["name"] for pattern in excluded_files):
+            if any(file["name"].endswith(f"{pattern}.swift") for pattern in excluded_files):
                 continue
             files_in_target.append(file)
 

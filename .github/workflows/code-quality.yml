@@ -28,69 +28,69 @@ jobs:
       - name: Run SwiftLint
         run: swiftlint --strict --config .swiftlint.yml
 
-#   perform-tests:
-#     name: Unit tests
-#     runs-on: macos-15
-#     needs: swiftlint-check
+  perform-tests:
+    name: Unit tests
+    runs-on: macos-15
+    needs: swiftlint-check
 
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v4
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-#     - name: Select Xcode Version
-#       run: sudo xcode-select -switch /Applications/Xcode_16.app/Contents/Developer
+    - name: Select Xcode Version
+      run: sudo xcode-select -switch /Applications/Xcode_16.app/Contents/Developer
 
-#     - name: Set up Xcode
-#       run: xcode-select -p
+    - name: Set up Xcode
+      run: xcode-select -p
 
-#     - name: Run Tests
-#       run: |
-#         xcodebuild test \
-#           -project GymTracker.xcodeproj \
-#           -scheme GymTracker \
-#           -destination 'platform=iOS Simulator,name=${{env.SIMULATOR_NAME}},OS=${{env.SIMULATOR_OS}}' \
-#           -enableCodeCoverage YES \
-#           -resultBundlePath TestResults \
-#           -skipPackagePluginValidation \
-#           -skipMacroValidation \
-#           CODE_SIGNING_ALLOWED=NO
+    - name: Run Tests
+      run: |
+        xcodebuild test \
+          -project GymTracker.xcodeproj \
+          -scheme GymTracker \
+          -destination 'platform=iOS Simulator,name=${{env.SIMULATOR_NAME}},OS=${{env.SIMULATOR_OS}}' \
+          -enableCodeCoverage YES \
+          -resultBundlePath TestResults \
+          -skipPackagePluginValidation \
+          -skipMacroValidation \
+          CODE_SIGNING_ALLOWED=NO
     
-#     - name: Generate code coverage report
-#       run: |
-#         xcrun xccov view --report --json TestResults.xcresult > coverage.json
+    - name: Generate code coverage report
+      run: |
+        xcrun xccov view --report --json TestResults.xcresult > coverage.json
 
-#     - name: Generate filtered code coverage
-#       run: |
-#         python3 .python/filter_coverage.py "$EXCLUDED_FILES" "$EXCLUDED_TARGETS" "$COVERAGE_PERCENTAGE_FILE_NAME"
+    - name: Generate filtered code coverage
+      run: |
+        python3 .python/filter_coverage.py "$EXCLUDED_FILES" "$EXCLUDED_TARGETS" "$COVERAGE_PERCENTAGE_FILE_NAME"
     
-#     - name: Upload coverage artifacts
-#       uses: actions/upload-artifact@v4
-#       with:
-#         name: coverage-files
-#         path: |
-#           ${{env.COVERAGE_PERCENTAGE_FILE_NAME}}
-#           coverage.json
+    - name: Upload coverage artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-files
+        path: |
+          ${{env.COVERAGE_PERCENTAGE_FILE_NAME}}
+          coverage.json
 
-#   check-coverage:
-#     name: Code coverage check
-#     runs-on: macos-15
-#     needs: perform-tests
+  check-coverage:
+    name: Code coverage check
+    runs-on: macos-15
+    needs: perform-tests
 
-#     steps:
-#     - name: Download coverage artifacts
-#       uses: actions/download-artifact@v4
-#       with:
-#         name: coverage-files
+    steps:
+    - name: Download coverage artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: coverage-files
 
-#     - name: Check coverage threshold
-#       run: |
-#         COVERAGE=$(cat "$COVERAGE_PERCENTAGE_FILE_NAME")
-#         THRESHOLD=$REQUIRED_CODE_COVERAGE
-#         echo "Computed coverage: $COVERAGE%"
-#         echo "Required coverage: $THRESHOLD%"
-#         if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
-#           echo "Code coverage ($COVERAGE%) is below the threshold ($THRESHOLD%)!"
-#           exit 1
-#         else
-#           echo "Code coverage ($COVERAGE%) meets the threshold ($THRESHOLD%)."
-#         fi
+    - name: Check coverage threshold
+      run: |
+        COVERAGE=$(cat "$COVERAGE_PERCENTAGE_FILE_NAME")
+        THRESHOLD=$REQUIRED_CODE_COVERAGE
+        echo "Computed coverage: $COVERAGE%"
+        echo "Required coverage: $THRESHOLD%"
+        if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+          echo "Code coverage ($COVERAGE%) is below the threshold ($THRESHOLD%)!"
+          exit 1
+        else
+          echo "Code coverage ($COVERAGE%) meets the threshold ($THRESHOLD%)."
+        fi

@@ -14,6 +14,8 @@ struct TrainingView: View {
 	
 	@Environment(\.dismiss) var dismiss
 	
+	@State private var viewModel: ViewModel
+	
 	var body: some View {
 		ZStack {
 			Color.teal
@@ -28,19 +30,23 @@ struct TrainingView: View {
 				.buttonStyle(.bordered)
 				
 				ForEach(training.exercises) { exercise in
-					ExerciseView(showTextField: training.exercises.last == exercise, exercise: exercise)
+					ExerciseView(showTextField: training.exercises.last == exercise, exercise: exercise, viewModel: viewModel)
 				}
 				
 				Spacer()
 				
 				Button("Next exercise") {
-					let exercise = Exercise(name: "Bench Press", sets: [], options: [.reps, .weight])
-					training.exercises.append(exercise)
+					viewModel.addExercise()
 				}
 				.buttonStyle(.borderedProminent)
 			}
 			.containerRelativeFrame([.horizontal], alignment: .top)
 		}
+	}
+	
+	init(training: Training) {
+		self.training = training
+		self._viewModel = State(initialValue: ViewModel(training: training))
 	}
 }
 
@@ -63,6 +69,7 @@ struct ExerciseView: View {
 	@Bindable var exercise: Exercise
 	
 	@State var noSeries = 0
+	@State var viewModel: TrainingView.ViewModel
 	
 	var body: some View {
 		VStack {
@@ -83,8 +90,7 @@ struct ExerciseView: View {
 					Spacer()
 					
 					Button("Save", systemImage: "checkmark") {
-						let exerciseSet = ExerciseSet(repetitions: noSeries, weight: nil, time: nil, distance: nil)
-						exercise.sets.append(exerciseSet)
+						viewModel.addExerciseSet(to: exercise)
 						noSeries = 0
 					}
 				}
