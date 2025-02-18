@@ -5,6 +5,7 @@
 //  Created by Adam Tokarski on 13/02/2025.
 //
 
+import SwiftData
 import SwiftUI
 
 @main
@@ -13,5 +14,6 @@ struct GymTrackerApp: App {
         WindowGroup {
             ContentView()
         }
+		.modelContainer(for: Training.self)
     }
 }
