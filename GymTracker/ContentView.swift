@@ -20,7 +20,7 @@ struct ContentView: View {
 #Preview {
 	do {
 		let config = ModelConfiguration(isStoredInMemoryOnly: true)
-		let container = try ModelContainer(for: Training.self, configurations: config)
+		let container = try ModelContainer(for: TrainingModel.self, configurations: config)
 		return ContentView()
 			.modelContainer(container)
 	} catch {

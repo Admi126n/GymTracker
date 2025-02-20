@@ -10,11 +10,12 @@ import SwiftUI
 
 struct TrainingView: View {
 	
-	@Bindable var training: Training
+	@Bindable var training: TrainingModel
 	
 	@Environment(\.dismiss) var dismiss
 	
 	@State private var viewModel: ViewModel
+	@State private var showingNewExerciseView = false
 	
 	var body: some View {
 		ZStack {
@@ -22,9 +23,11 @@ struct TrainingView: View {
 				.ignoresSafeArea(.all)
 			
 			VStack {
-				Text(training.name ?? "Unknown")
+				Text(training.name)
 				
 				Button("End training", role: .destructive) {
+					ExerciseStatsManager.shared.addOrUpdateStats(training.exercises)
+					
 					dismiss()
 				}
 				.buttonStyle(.bordered)
@@ -36,15 +39,20 @@ struct TrainingView: View {
 				Spacer()
 				
 				Button("Next exercise") {
-					viewModel.addExercise()
+					showingNewExerciseView.toggle()
 				}
 				.buttonStyle(.borderedProminent)
 			}
 			.containerRelativeFrame([.horizontal], alignment: .top)
+			.sheet(isPresented: $showingNewExerciseView) {
+				NewExerciseView { newExercise in
+					training.exercises.append(newExercise)
+				}
+			}
 		}
 	}
 	
-	init(training: Training) {
+	init(training: TrainingModel) {
 		self.training = training
 		self._viewModel = State(initialValue: ViewModel(training: training))
 	}
@@ -53,8 +61,8 @@ struct TrainingView: View {
 #Preview {
 	do {
 		let config = ModelConfiguration(isStoredInMemoryOnly: true)
-		let container = try ModelContainer(for: Training.self, configurations: config)
-		let training = Training(startDate: .now)
+		let container = try ModelContainer(for: TrainingModel.self, configurations: config)
+		let training = TrainingModel(startDate: .now)
 		return TrainingView(training: training)
 			.modelContainer(container)
 	} catch {
@@ -66,9 +74,9 @@ struct ExerciseView: View {
 	
 	let showTextField: Bool
 	
-	@Bindable var exercise: Exercise
+	@Bindable var exercise: ExerciseModel
 	
-	@State var noSeries = 0
+	@State var value = 0.0
 	@State var viewModel: TrainingView.ViewModel
 	
 	var body: some View {
@@ -77,7 +85,7 @@ struct ExerciseView: View {
 				.frame(maxWidth: .infinity, alignment: .leading)
 			
 			ForEach(exercise.sets) {
-				Text("\($0.desc())")
+				Text("\($0.description)")
 					.frame(maxWidth: .infinity, alignment: .leading)
 			}
 			
@@ -85,13 +93,13 @@ struct ExerciseView: View {
 				HStack {
 					Text("\(exercise.sets.count + 1)")
 					
-					TextField("no reps", value: $noSeries, format: .number)
+					TextField("main stat value", value: $value, format: .number)
 					
 					Spacer()
 					
 					Button("Save", systemImage: "checkmark") {
-						viewModel.addExerciseSet(to: exercise)
-						noSeries = 0
+						viewModel.addExerciseSet(to: exercise, value: value)
+						value = 0
 					}
 				}
 			}

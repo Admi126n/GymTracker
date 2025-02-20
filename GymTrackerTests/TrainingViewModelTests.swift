@@ -11,11 +11,11 @@ import Testing
 
 class TrainingViewModelTests {
 	
-	private var training: Training!
+	private var training: TrainingModel!
 	private var sut: TrainingView.ViewModel!
 	
 	init() {
-		training = Training(startDate: .now)
+		training = TrainingModel(startDate: .now)
 		sut = TrainingView.ViewModel(training: training)
 	}
 	
@@ -31,38 +31,38 @@ class TrainingViewModelTests {
 	}
 	
 	@Test func addExerciseSetWithRepetitionsTest() {
-		let exercise = Exercise(name: "Text", sets: [], options: .repetitions)
-		let repetitions = 10
+		let exercise = ExerciseModel(name: "Test", mainStat: .repetitions)
+		let repetitions = 10.0
 		
-		sut.addExerciseSet(to: exercise, repetitions: repetitions)
+		sut.addExerciseSet(to: exercise, value: repetitions)
 		
 		let result = exercise.sets.last
 		
 		#expect(result != nil)
-		#expect(result?.repetitions == repetitions)
+		#expect(result?.mainStat.value == repetitions)
 	}
 	
 	@Test func addExerciseSetWithWeightTest() {
-		let exercise = Exercise(name: "Text", sets: [], options: .weight)
+		let exercise = ExerciseModel(name: "Test", mainStat: .weight)
 		let weight = 10.0
 		
-		sut.addExerciseSet(to: exercise, weight: weight)
+		sut.addExerciseSet(to: exercise, value: weight)
 		
 		let result = exercise.sets.last
 		
 		#expect(result != nil)
-		#expect(result?.weight == weight)
+		#expect(result?.mainStat.value == weight)
 	}
 	
 	@Test func addExerciseSetWithDistanceTest() {
-		let exercise = Exercise(name: "Text", sets: [], options: .distance)
+		let exercise = ExerciseModel(name: "Test", mainStat: .distance)
 		let distance = 10.0
 		
-		sut.addExerciseSet(to: exercise, distance: distance)
+		sut.addExerciseSet(to: exercise, value: distance)
 		
 		let result = exercise.sets.last
 		
 		#expect(result != nil)
-		#expect(result?.distance == distance)
+		#expect(result?.mainStat.value == distance)
 	}
 }

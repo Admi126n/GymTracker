@@ -10,21 +10,10 @@ import SwiftUI
 
 @main
 struct GymTrackerApp: App {
-	
-	let container: ModelContainer
-	
 	var body: some Scene {
 		WindowGroup {
 			ContentView()
 		}
-		.modelContainer(container)
-	}
-	
-	init() {
-		do {
-			container = try ModelContainer(for: Training.self)
-		} catch {
-			fatalError("Failed to create ModelContainer for Movie.")
-		}
+		.modelContainer(for: TrainingModel.self)
 	}
 }

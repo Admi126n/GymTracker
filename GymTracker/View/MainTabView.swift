@@ -17,7 +17,7 @@ struct MainTabView: View {
 	
 	var body: some View {
 		TabView(selection: $selection) {
-			Tab("Exercises", systemImage: "figure.strengthtraining.traditional", value: 0) {
+			Tab("ExerciseModels", systemImage: "figure.strengthtraining.traditional", value: 0) {
 				ExercisesView()
 			}
 			
@@ -35,7 +35,7 @@ struct MainTabView: View {
 #Preview {
 	do {
 		let config = ModelConfiguration(isStoredInMemoryOnly: true)
-		let container = try ModelContainer(for: Training.self, configurations: config)
+		let container = try ModelContainer(for: TrainingModel.self, configurations: config)
 		return MainTabView()
 			.modelContainer(container)
 	} catch {

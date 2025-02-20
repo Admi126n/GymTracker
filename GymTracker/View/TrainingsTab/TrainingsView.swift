@@ -10,7 +10,7 @@ import SwiftUI
 
 struct TrainingsView: View {
 	
-	@Query private var trainings: [Training]
+	@Query private var trainings: [TrainingModel]
 	
 	@State private var searchText = ""
 	
@@ -18,7 +18,7 @@ struct TrainingsView: View {
 		NavigationStack {
 			List {
 				ForEach(trainings) { training in
-					Text(training.name ?? "Unknown training")
+					Text(training.name)
 				}
 			}
 			.searchable(text: $searchText, prompt: "Search for training")
@@ -29,13 +29,13 @@ struct TrainingsView: View {
 #Preview {
 	do {
 		let config = ModelConfiguration(isStoredInMemoryOnly: true)
-		let container = try ModelContainer(for: Training.self, configurations: config)
+		let container = try ModelContainer(for: TrainingModel.self, configurations: config)
 		let trainings = [
-			Training(startDate: .now),
-			Training(startDate: .now),
-			Training(startDate: .now),
-			Training(startDate: .now),
-			Training(startDate: .now)
+			TrainingModel(startDate: .now),
+			TrainingModel(startDate: .now),
+			TrainingModel(startDate: .now),
+			TrainingModel(startDate: .now),
+			TrainingModel(startDate: .now)
 		]
 		trainings.forEach {
 			container.mainContext.insert($0)

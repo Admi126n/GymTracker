@@ -11,26 +11,23 @@ extension TrainingView {
 	@Observable
 	class ViewModel {
 		
-		var training: Training
+		var training: TrainingModel
 
-		init(training: Training) {
+		init(training: TrainingModel) {
 			self.training = training
 		}
 		
 		func addExercise() {
-			let exercise = Exercise(name: "New", sets: [], options: .repetitions)
+			let exercise = ExerciseModel(name: "New", mainStat: .weight)
 			training.exercises.append(exercise)
 		}
 
 		func addExerciseSet(
-			to exercise: Exercise,
-			repetitions: Int? = nil,
-			weight: Double? = nil,
-			time: TimeInterval? = nil,
-			distance: Double? = nil
+			to exercise: ExerciseModel,
+			value: Double,
+			additionalStats: [ExerciseStatistic: Double] = [:]
 		) {
-			let exerciseSet = ExerciseSet(repetitions: repetitions, weight: weight, time: time, distance: distance)
-			exercise.sets.append(exerciseSet)
+			exercise.addSet(mainValue: value, additionalStats: additionalStats)
 		}
 	}
 }
