@@ -14,4 +14,21 @@ enum ExerciseStatistic: String, CaseIterable, Codable {
 	case timeMoreIsBetter
 	case timeLessIsBetter
 	case seatHeight
+	
+	var symbol: String {
+		switch self {
+		case .weight:
+			"scalemass"
+		case .distance:
+			"ruler"
+		case .repetitions:
+			"repeat"
+		case .timeMoreIsBetter:
+			"hourglass.tophalf.filled"
+		case .timeLessIsBetter:
+			"timer"
+		case .seatHeight:
+			"chair"
+		}
+	}
 }

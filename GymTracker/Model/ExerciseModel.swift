@@ -40,6 +40,16 @@ final class ExerciseModel {
 		sets.append(set)
 	}
 	
+	func addSet(stats: [ExerciseStatistic: Double]) {
+		var additionalStats = stats
+		additionalStats[mainStat] = nil
+		
+		let set = ExerciseSetModel(
+			mainStat: MainStatistic(type: mainStat, value: stats[mainStat] ?? 0),
+			stats: additionalStats)
+		sets.append(set)
+	}
+	
 	func getBestMainStatValue() -> Double {
 		sets.best()?.mainStat.value ?? 0
 	}

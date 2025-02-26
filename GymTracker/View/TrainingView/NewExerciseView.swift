@@ -102,6 +102,8 @@ struct NewExerciseView: View {
 				}
 				
 				if exerciseSelected {
+					MainStatPickerView(stat: $mainStatistic)
+					
 					Picker("Main statistic", selection: $mainStatistic) {
 						ForEach(ExerciseStatistic.allCases, id: \.self) { stat in
 							Text(stat.rawValue)

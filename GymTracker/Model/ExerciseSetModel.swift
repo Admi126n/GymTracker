@@ -19,7 +19,17 @@ final class ExerciseSetModel {
 	}
 	
 	var description: String {
-		"\(mainStat.type): \(mainStat.value)"
+		"\(mainStat.type): \(mainStat.value)\(allStatsDescription)"
+	}
+	
+	private var allStatsDescription: String {
+		var output = ""
+		
+		for stat in stats {
+			output += "\n\(stat.key): \(stat.value)"
+		}
+		
+		return output
 	}
 }
 
