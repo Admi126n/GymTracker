@@ -17,15 +17,17 @@ struct SavedExerciseCell: View {
 				.frame(maxWidth: .infinity, alignment: .leading)
 				.fontWeight(.bold)
 			
-			Text("Main stat: \(exerciseRecord.mainStat.rawValue), \(exerciseRecord.record)")
+			(Text("Record: ") +
+			 Text(exerciseRecord.record, format: .number) +
+			 Text(" \(exerciseRecord.mainStat.unit)"))
 				.font(.subheadline)
 			
-			HStack {
-				ForEach(exerciseRecord.optionalStats, id: \.self) {
-					Text($0.rawValue)
-						.font(.footnote)
-				}
+			if !exerciseRecord.optionalStats.isEmpty {
+				(Text("Optional stats: ") +
+				 Text(ListFormatter.localizedString(byJoining: exerciseRecord.optionalStats.map { $0.rawValue })))
+				.font(.footnote)
 			}
+			
 		}
 		.contentShape(.rect)
 		.padding(8)
@@ -44,9 +46,7 @@ struct NewExerciseView: View {
 	
 	@StateObject private var vModel = ViewModel()
 	
-	@State private var uuid = ""
 	@State private var exerciseSelected = false
-	@State private var selectedRecord: ExerciseRecord?
 	
 	let savedExercises: [ExerciseRecord]
 	let completion: (ExerciseModel) -> Void
@@ -113,7 +113,11 @@ struct NewExerciseView: View {
 					Spacer()
 					
 					Button("Add") {
-						if let selectedRecord = selectedRecord {
+						if let selectedRecord = vModel.selectedRecord,
+						   selectedRecord.hasEqualProperties(name: vModel.name,
+															 mainStat: vModel.mainStat,
+															 optionalStats: Array(vModel.optionalStats)) {
+							
 							let exercise = ExerciseModel(exerciseRecord: selectedRecord)
 							completion(exercise)
 						} else {
@@ -148,10 +152,11 @@ struct NewExerciseView: View {
 	
 	private func setStatsWith(record: ExerciseRecord) {
 		withAnimation {
+			vModel.name = record.name
 			vModel.mainStat = record.mainStat
 			vModel.optionalStats = Set(record.optionalStats)
-			vModel.name = record.name
-			selectedRecord = record
+			
+			vModel.selectedRecord = record
 			exerciseSelected = true
 		}
 	}

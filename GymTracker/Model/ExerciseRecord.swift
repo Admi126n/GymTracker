@@ -43,6 +43,12 @@ struct ExerciseRecord: Codable, Hashable {
 		self.optionalStats = additionalStats
 		self.recordDate = recordDate.timeIntervalSince1970
 	}
+	
+	func hasEqualProperties(name: String, mainStat: ExerciseStatistic, optionalStats: [ExerciseStatistic]) -> Bool {
+		self.name == name &&
+		self.mainStat == mainStat &&
+		self.optionalStats == optionalStats
+	}
 }
 
 extension ExerciseRecord: Equatable {

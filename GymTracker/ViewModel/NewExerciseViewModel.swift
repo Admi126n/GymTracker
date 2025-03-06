@@ -17,6 +17,7 @@ extension NewExerciseView {
 			}
 		}
 		@Published var optionalStats: Set<ExerciseStatistic> = []
+		@Published var selectedRecord: ExerciseRecord?
 		
 		var optionalStatsCases: [ExerciseStatistic] {
 			var output: Set<ExerciseStatistic> = []
