@@ -25,17 +25,11 @@ final class SetModel {
 	}
 	
 	var description: String {
-		"Main stat: \(mainStat) \(mainStatValue)\(allStatsDescription)"
+		"\(allStatsDescription)"
 	}
 	
 	private var allStatsDescription: String {
-		var output = ""
-		
-		for stat in stats.filter({ $0.key != mainStat }) {
-			output += "\n\(stat.key): \(stat.value)"
-		}
-		
-		return output
+		return stats.map { "\($0.key): \($0.value) \($0.key.unit)" }.joined(separator: "\n")
 	}
 }
 

@@ -27,11 +27,13 @@ struct SetEditorView: View {
 				TextField("Weight", value: dictBinding(for: .weight), format: .number)
 					.keyboardType(.decimalPad)
 					.frame(width: 50)
+					.textFieldStyle(.roundedBorder)
 				
 				Text("kg x")
 				
 				TextField("Repetitions", value: dictBinding(for: .repetitions), format: .number)
 					.keyboardType(.numberPad)
+					.textFieldStyle(.roundedBorder)
 			} else {
 				VStack {
 					HStack {
@@ -39,6 +41,7 @@ struct SetEditorView: View {
 						
 						TextField("Value", value: dictBinding(for: exercise.mainStat), format: .number)
 							.keyboardType(.decimalPad)
+							.textFieldStyle(.roundedBorder)
 					}
 					
 					ForEach(exercise.optionalStats, id: \.self) { stat in
@@ -47,6 +50,7 @@ struct SetEditorView: View {
 							
 							TextField("Value", value: dictBinding(for: stat), format: .number)
 								.keyboardType(.decimalPad)
+								.textFieldStyle(.roundedBorder)
 						}
 					}
 				}

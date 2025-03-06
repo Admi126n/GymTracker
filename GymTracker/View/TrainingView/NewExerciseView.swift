@@ -28,11 +28,13 @@ struct SavedExerciseCell: View {
 			}
 		}
 		.contentShape(.rect)
-		.padding(4)
-		.overlay(
-			RoundedRectangle(cornerRadius: 5)
-				.stroke(.secondary, lineWidth: 1)
-		)
+		.padding(8)
+		.background(HierarchicalShapeStyle.quaternary)
+		.overlay {
+			RoundedRectangle(cornerRadius: 15, style: .continuous)
+				.stroke(.indigo, lineWidth: 5)
+		}
+		.clipShape(.rect(cornerRadius: 15, style: .continuous))
 	}
 }
 
@@ -96,13 +98,6 @@ struct NewExerciseView: View {
 				
 				if exerciseSelected {
 					MainStatPickerView(stat: $mainStatistic)
-					
-					Picker("Main statistic", selection: $mainStatistic) {
-						ForEach(ExerciseStatistic.allCases, id: \.self) { stat in
-							Text(stat.rawValue)
-								.tag(stat)
-						}
-					}
 					
 					ForEach(ExerciseStatistic.allCases, id: \.self) { stat in
 						if stat != mainStatistic {

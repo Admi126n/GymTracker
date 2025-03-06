@@ -105,13 +105,16 @@ struct ExerciseView: View {
 					.frame(maxWidth: .infinity, alignment: .leading)
 					.font(.title2)
 				
-				Text("Max: \(ExerciseRecordManager.shared.getBestForExerciseWith(uuid: exercise.uuid))")
+				Text("Max: ") +
+				Text(ExerciseRecordManager.shared.getBestForExerciseWith(uuid: exercise.uuid), format: .number) +
+				Text(" \(exercise.mainStat.unit)")
 				
 				Spacer(minLength: 0)
 				
 				if !showTextField {
 					Image(systemName: "chevron.up")
 						.rotationEffect(.init(degrees: isExpanded ? 0 : 180))
+						.foregroundStyle(.indigo)
 				}
 			}
 			.contentShape(.rect)
@@ -124,13 +127,21 @@ struct ExerciseView: View {
 			}
 			
 			if isExpanded {
-				ForEach(exercise.sets) {
-					Text("\($0.description)")
-						.frame(maxWidth: .infinity, alignment: .leading)
-						.overlay(
-							RoundedRectangle(cornerRadius: 5)
-								.stroke(.secondary, lineWidth: 1)
-						)
+				Rectangle()
+					.frame(height: 1)
+					.foregroundStyle(.secondary)
+				
+				ForEach(Array(zip(exercise.sets.indices, exercise.sets)), id: \.0) { index, item in
+					HStack {
+						Text("\(index + 1).")
+						
+						Text("\(item.description)")
+							.frame(maxWidth: .infinity, alignment: .leading)
+					}
+					
+					Rectangle()
+						.frame(height: 1)
+						.foregroundStyle(.secondary)
 				}
 			}
 			
@@ -139,11 +150,12 @@ struct ExerciseView: View {
 			}
 		}
 		.padding()
+		.background(HierarchicalShapeStyle.quaternary)
 		.overlay {
-			RoundedRectangle(cornerRadius: 5)
-				.stroke(.secondary, lineWidth: 1)
+			RoundedRectangle(cornerRadius: 15, style: .continuous)
+				.stroke(.indigo, lineWidth: 5)
 		}
-		.clipShape(.rect(cornerRadius: 5))
+		.clipShape(.rect(cornerRadius: 15, style: .continuous))
 		.padding(.horizontal)
 	}
 }
