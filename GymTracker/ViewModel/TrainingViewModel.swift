@@ -19,7 +19,7 @@ extension TrainingView {
 		
 		func addExercise() {
 			let exercise = ExerciseModel(name: "New", mainStat: .weight)
-			training.exercises.append(exercise)
+//			training.exercises.append(exercise)
 		}
 
 		func addExerciseSet(
@@ -27,7 +27,7 @@ extension TrainingView {
 			value: Double,
 			additionalStats: [ExerciseStatistic: Double] = [:]
 		) {
-			exercise.addSet(mainValue: value, additionalStats: additionalStats)
+//			exercise.addSet(mainValue: value, additionalStats: additionalStats)
 		}
 	}
 }

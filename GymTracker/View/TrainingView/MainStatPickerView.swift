@@ -13,7 +13,7 @@ struct MainStatPickerView: View {
 	
 	var body: some View {
 		HStack(spacing: 4) {
-			ForEach(ExerciseStatistic.allCases.filter { $0 != .seatHeight }, id: \.self) { statistic in
+			ForEach(ExerciseStatistic.allCases, id: \.self) { statistic in
 				HStack {
 					Image(systemName: statistic.symbol)
 						.foregroundStyle(statistic == stat ? .primary : .secondary)

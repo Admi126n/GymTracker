@@ -9,23 +9,19 @@ import SwiftUI
 
 struct SavedExerciseCell: View {
 	
-	let name: String
-	let mainStat: MainStatistic?
-	let additionalStats: [ExerciseStatistic]
+	let exerciseRecord: ExerciseRecord
 	
 	var body: some View {
 		VStack(alignment: .leading) {
-			Text(name)
+			Text(exerciseRecord.name)
 				.frame(maxWidth: .infinity, alignment: .leading)
 				.fontWeight(.bold)
 			
-			if let mainStat = mainStat {
-				Text("Main stat: \(mainStat.type), \(mainStat.value)")
-					.font(.subheadline)
-				
-			}
+			Text("Main stat: \(exerciseRecord.mainStat.rawValue), \(exerciseRecord.record)")
+				.font(.subheadline)
+			
 			HStack {
-				ForEach(additionalStats, id: \.self) {
+				ForEach(exerciseRecord.optionalStats, id: \.self) {
 					Text($0.rawValue)
 						.font(.footnote)
 				}
@@ -38,18 +34,6 @@ struct SavedExerciseCell: View {
 				.stroke(.secondary, lineWidth: 1)
 		)
 	}
-	
-	init(name: String) {
-		self.name = "New: \(name)"
-		self.mainStat = nil
-		self.additionalStats = []
-	}
-	
-	init(savedStats: ExerciseStats) {
-		self.name = savedStats.name
-		self.mainStat = .init(type: savedStats.mainStat, value: savedStats.record)
-		self.additionalStats = savedStats.additionalStats
-	}
 }
 
 struct NewExerciseView: View {
@@ -60,15 +44,16 @@ struct NewExerciseView: View {
 	@State private var mainStatistic: ExerciseStatistic = .weight
 	@State private var additionalStats: Set<ExerciseStatistic> = []
 	@State private var exerciseSelected = false
+	@State private var selectedRecord: ExerciseRecord?
 	
-	let savedExercises: [ExerciseStats]
+	let savedExercises: [ExerciseRecord]
 	let completion: (ExerciseModel) -> Void
 	
 	private var additionalCases: [ExerciseStatistic] {
 		ExerciseStatistic.allCases.filter { $0 != mainStatistic }
 	}
 	
-	private var filteredSavedExercises: [ExerciseStats] {
+	private var filteredSavedExercises: [ExerciseRecord] {
 		if name.isEmpty {
 			return savedExercises.sorted { $0.name < $1.name }
 		} else {
@@ -86,16 +71,24 @@ struct NewExerciseView: View {
 				if !exerciseSelected {
 					VStack {
 						if !name.isEmpty {
-							SavedExerciseCell(name: name)
+							Text("Add new: \(name)")
+								.frame(maxWidth: .infinity, alignment: .leading)
+								.fontWeight(.bold)
+								.contentShape(.rect)
+								.padding(4)
+								.overlay(
+									RoundedRectangle(cornerRadius: 5)
+										.stroke(.secondary, lineWidth: 1)
+								)
 								.onTapGesture {
 									setStats()
 								}
 						}
 						
-						ForEach(filteredSavedExercises, id: \.self) { stat in
-							SavedExerciseCell(savedStats: stat)
+						ForEach(filteredSavedExercises, id: \.self) { record in
+							SavedExerciseCell(exerciseRecord: record)
 								.onTapGesture {
-									setStats(stat)
+									setStatsWith(record: record)
 								}
 						}
 					}
@@ -131,8 +124,14 @@ struct NewExerciseView: View {
 					Spacer()
 					
 					Button("Add") {
-						let exercise = ExerciseModel(name: name, mainStat: mainStatistic, additionalStats: Array(additionalStats))
-						completion(exercise)
+						if let selectedRecord = selectedRecord {
+							let exercise = ExerciseModel(exerciseRecord: selectedRecord)
+							completion(exercise)
+						} else {
+							let exercise = ExerciseModel(name: name, mainStat: mainStatistic, optionalStats: Array(additionalStats))
+							completion(exercise)
+						}
+						
 						dismiss()
 					}
 					.disabled(!exerciseSelected)
@@ -152,15 +151,16 @@ struct NewExerciseView: View {
 	}
 	
 	init(completion: @escaping (ExerciseModel) -> Void) {
-		self.savedExercises = ExerciseStatsManager.shared.loadStats()
+		self.savedExercises = ExerciseRecordManager.shared.loadStats()
 		self.completion = completion
 	}
 	
-	private func setStats(_ stats: ExerciseStats) {
+	private func setStatsWith(record: ExerciseRecord) {
 		withAnimation {
-			mainStatistic = stats.mainStat
-			additionalStats = Set(stats.additionalStats)
-			name = stats.name
+			mainStatistic = record.mainStat
+			additionalStats = Set(record.optionalStats)
+			name = record.name
+			selectedRecord = record
 			exerciseSelected = true
 		}
 	}

@@ -39,7 +39,7 @@ struct StartView: View {
 #if DEBUG
 				ToolbarItem(placement: .topBarLeading) {
 					Button("Clear model context", systemImage: "trash") { resetModelContext()
-						ExerciseStatsManager.shared.clearData()
+						ExerciseRecordManager.shared.clearData()
 					}
 					.tint(.red)
 				}
@@ -52,7 +52,7 @@ struct StartView: View {
 		do {
 			try modelContext.delete(model: TrainingModel.self)
 			try modelContext.delete(model: ExerciseModel.self)
-			try modelContext.delete(model: ExerciseSetModel.self)
+			try modelContext.delete(model: SetModel.self)
 		} catch {
 			print("Failed to clear model context.")
 		}

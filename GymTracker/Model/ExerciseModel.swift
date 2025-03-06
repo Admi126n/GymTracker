@@ -10,47 +10,44 @@ import SwiftData
 
 @Model
 final class ExerciseModel {
-	var uuid: String
-	var name: String = ""
-	var mainStat: ExerciseStatistic
-	var additionalStats: [ExerciseStatistic] = []
-	var seatHeight: String?
-	var startDate: Date
-	@Relationship(deleteRule: .cascade) private(set) var sets: [ExerciseSetModel] = []
+	private(set) var uuid: String
+	private(set) var name: String
+	private(set) var mainStat: ExerciseStatistic
+	private(set) var optionalStats: [ExerciseStatistic]
+	private(set) var seatHeight: String?
+	private(set) var timestamp: TimeInterval
 	
-	init(name: String, mainStat: ExerciseStatistic, additionalStats: [ExerciseStatistic] = []) {
+	@Relationship(deleteRule: .cascade)
+	private var setsPersistent: [SetModel] = []
+	
+	var sets: [SetModel] {
+		setsPersistent.sorted(using: KeyPathComparator(\.timestamp))
+	}
+	
+	init(name: String, mainStat: ExerciseStatistic, optionalStats: [ExerciseStatistic] = [], startDate: Date = .now) {
 		self.uuid = UUID().uuidString
 		self.name = name
 		self.mainStat = mainStat
-		self.additionalStats = additionalStats
-		self.startDate = .now
+		self.optionalStats = optionalStats.filter { $0 != mainStat }
+		self.timestamp = startDate.timeIntervalSince1970
 	}
 	
-	init(savedStats: ExerciseStats, startDate: Date = .now) {
-		self.uuid = savedStats.uuid
-		self.name = savedStats.name
-		self.mainStat = savedStats.mainStat
-		self.additionalStats = savedStats.additionalStats
-		self.startDate = startDate
-	}
-	
-	func addSet(mainValue: Double, additionalStats: [ExerciseStatistic: Double]) {
-		let set = ExerciseSetModel(mainStat: MainStatistic(type: mainStat, value: mainValue), stats: additionalStats)
-		
-		sets.append(set)
+	init(exerciseRecord: ExerciseRecord, startDate: Date = .now) {
+		self.uuid = exerciseRecord.uuid
+		self.name = exerciseRecord.name
+		self.mainStat = exerciseRecord.mainStat
+		self.optionalStats = exerciseRecord.optionalStats
+		self.seatHeight = exerciseRecord.seatHeight
+		self.timestamp = startDate.timeIntervalSince1970
 	}
 	
 	func addSet(stats: [ExerciseStatistic: Double]) {
-		var additionalStats = stats
-		additionalStats[mainStat] = nil
+		let set = SetModel(mainStat: mainStat, stats: stats)
 		
-		let set = ExerciseSetModel(
-			mainStat: MainStatistic(type: mainStat, value: stats[mainStat] ?? 0),
-			stats: additionalStats)
-		sets.append(set)
+		setsPersistent.append(set)
 	}
 	
-	func getBestMainStatValue() -> Double {
-		sets.best()?.mainStat.value ?? 0
+	func getBestValue() -> Double {
+		setsPersistent.best()?.mainStatValue ?? 0
 	}
 }

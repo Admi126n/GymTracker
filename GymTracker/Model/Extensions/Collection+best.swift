@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Array<ExerciseSetModel> {
+extension Array<SetModel> {
 	func best() -> Element? {
 		self.max()
 	}

@@ -20,44 +20,39 @@ struct TrainingView: View {
 	@State private var showingNewExerciseView = false
 	
 	var body: some View {
-		ZStack {
-			Color.teal
-				.ignoresSafeArea(.all)
+		VStack {
+			Text(training.name)
 			
-			VStack {
-				Text(training.name)
+			Button("End training", role: .destructive) {
+				ExerciseRecordManager.shared.addOrUpdateStats(training.exercises)
 				
-				Button("End training", role: .destructive) {
-					ExerciseStatsManager.shared.addOrUpdateStats(training.exercises)
-					
-					dismiss()
-				}
-				.buttonStyle(.bordered)
-				
-				ScrollViewReader { proxy in
-					ScrollView {
-						ForEach(training.exercises) { exercise in
-							ExerciseView(exercise: exercise, viewModel: viewModel, showTextField: training.exercises.last == exercise) {
-								scrollToBottom(proxy)
-							}
-						}
-						
-						Spacer()
-							.frame(minHeight: 100)
-							.id(bottomId)
-					}
-				}
-				.containerRelativeFrame([.horizontal], alignment: .top)
-				
-				Button("Next exercise") {
-					showingNewExerciseView.toggle()
-				}
-				.buttonStyle(.borderedProminent)
+				dismiss()
 			}
-			.sheet(isPresented: $showingNewExerciseView) {
-				NewExerciseView { newExercise in
-					training.exercises.append(newExercise)
+			.buttonStyle(.bordered)
+			
+			ScrollViewReader { proxy in
+				ScrollView {
+					ForEach(training.exercises) { exercise in
+						ExerciseView(exercise: exercise, viewModel: viewModel, showTextField: training.exercises.last == exercise) {
+							scrollToBottom(proxy)
+						}
+					}
+					
+					Spacer()
+						.frame(minHeight: 100)
+						.id(bottomId)
 				}
+			}
+			.containerRelativeFrame([.horizontal], alignment: .top)
+			
+			Button("Next exercise") {
+				showingNewExerciseView.toggle()
+			}
+			.buttonStyle(.borderedProminent)
+		}
+		.sheet(isPresented: $showingNewExerciseView) {
+			NewExerciseView { newExercise in
+				training.addExercise(newExercise)
 			}
 		}
 	}
@@ -81,10 +76,10 @@ struct TrainingView: View {
 		let training = TrainingModel(startDate: .now)
 		let exercise = ExerciseModel(name: "Hello", mainStat: .weight)
 		for _ in 0...10 {
-			exercise.addSet(mainValue: 100, additionalStats: [:])
+			exercise.addSet(stats: [.weight: 100])
 		}
 		
-		training.exercises = [exercise]
+		training.addExercise(exercise)
 		
 		return TrainingView(training: training)
 			.modelContainer(container)
@@ -98,29 +93,57 @@ struct ExerciseView: View {
 	@Bindable var exercise: ExerciseModel
 	
 	@State var viewModel: TrainingView.ViewModel
+	@State private var isExpanded = true
 	
 	let showTextField: Bool
 	let completion: () -> Void
 	
 	var body: some View {
 		VStack {
-			Text(exercise.name)
-				.frame(maxWidth: .infinity, alignment: .leading)
-				.font(.title2)
-			
-			ForEach(exercise.sets) {
-				Text("\($0.description)")
+			HStack {
+				Text(exercise.name)
 					.frame(maxWidth: .infinity, alignment: .leading)
-					.overlay(
-						RoundedRectangle(cornerRadius: 5)
-							.stroke(.secondary, lineWidth: 1)
-					)
+					.font(.title2)
+				
+				Text("Max: \(ExerciseRecordManager.shared.getBestForExerciseWith(uuid: exercise.uuid))")
+				
+				Spacer(minLength: 0)
+				
+				if !showTextField {
+					Image(systemName: "chevron.up")
+						.rotationEffect(.init(degrees: isExpanded ? 0 : 180))
+				}
+			}
+			.contentShape(.rect)
+			.onTapGesture {
+				if !showTextField {
+					withAnimation(.bouncy) {
+						isExpanded.toggle()
+					}
+				}
+			}
+			
+			if isExpanded {
+				ForEach(exercise.sets) {
+					Text("\($0.description)")
+						.frame(maxWidth: .infinity, alignment: .leading)
+						.overlay(
+							RoundedRectangle(cornerRadius: 5)
+								.stroke(.secondary, lineWidth: 1)
+						)
+				}
 			}
 			
 			if showTextField {
-				SetEditorView(exercise: exercise, completion: completion) 
+				SetEditorView(exercise: exercise, completion: completion)
 			}
 		}
+		.padding()
+		.overlay {
+			RoundedRectangle(cornerRadius: 5)
+				.stroke(.secondary, lineWidth: 1)
+		}
+		.clipShape(.rect(cornerRadius: 5))
 		.padding(.horizontal)
 	}
 }

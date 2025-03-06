@@ -31,11 +31,11 @@ struct TrainingsView: View {
 		let config = ModelConfiguration(isStoredInMemoryOnly: true)
 		let container = try ModelContainer(for: TrainingModel.self, configurations: config)
 		let trainings = [
-			TrainingModel(startDate: .now),
-			TrainingModel(startDate: .now),
-			TrainingModel(startDate: .now),
-			TrainingModel(startDate: .now),
-			TrainingModel(startDate: .now)
+			TrainingModel(),
+			TrainingModel(),
+			TrainingModel(),
+			TrainingModel(),
+			TrainingModel()
 		]
 		trainings.forEach {
 			container.mainContext.insert($0)

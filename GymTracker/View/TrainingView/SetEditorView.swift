@@ -23,7 +23,7 @@ struct SetEditorView: View {
 		HStack {
 			Text("\(exercise.sets.count + 1).")
 			
-			if exercise.mainStat == .weight && exercise.additionalStats == [.repetitions] {
+			if exercise.mainStat == .weight && exercise.optionalStats == [.repetitions] {
 				TextField("Weight", value: dictBinding(for: .weight), format: .number)
 					.keyboardType(.decimalPad)
 					.frame(width: 50)
@@ -41,7 +41,7 @@ struct SetEditorView: View {
 							.keyboardType(.decimalPad)
 					}
 					
-					ForEach(exercise.additionalStats, id: \.self) { stat in
+					ForEach(exercise.optionalStats, id: \.self) { stat in
 						HStack {
 							Text(stat.rawValue)
 							
@@ -66,12 +66,12 @@ struct SetEditorView: View {
 	
 	init(exercise: ExerciseModel, completion: @escaping () -> Void) {
 		self.exercise = exercise
-		self.stats = exercise.additionalStats.reduce(into: [:]) { $0[$1] = 0 }
+		self.stats = exercise.optionalStats.reduce(into: [:]) { $0[$1] = 0 }
 		self.completion = completion
 	}
 	
 	private func clearValues() {
-		stats = exercise.additionalStats.reduce(into: [:]) { $0[$1] = 0 }
+		stats = exercise.optionalStats.reduce(into: [:]) { $0[$1] = 0 }
 	}
 	
 	private func dictBinding(for key: ExerciseStatistic) -> Binding<Double> {

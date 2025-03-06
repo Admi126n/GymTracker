@@ -7,14 +7,24 @@
 
 import Foundation
 
-struct ExerciseStats: Codable, Hashable {
-	let uuid: String
-	let name: String
-	let mainStat: ExerciseStatistic
-	let record: Double
-	let seatHeight: String?
-	let additionalStats: [ExerciseStatistic]
-	let recordDate: Date
+struct ExerciseRecord: Codable, Hashable {
+	var uuid: String
+	var name: String
+	var mainStat: ExerciseStatistic
+	var record: Double
+	var seatHeight: String?
+	var optionalStats: [ExerciseStatistic]
+	var recordDate: TimeInterval
+	
+	init() {
+		uuid = UUID().uuidString
+		name = ""
+		mainStat = .weight
+		record = 0
+		seatHeight = nil
+		optionalStats = []
+		recordDate = Date.now.timeIntervalSince1970
+	}
 	
 	init(
 		uuid: String,
@@ -30,26 +40,26 @@ struct ExerciseStats: Codable, Hashable {
 		self.mainStat = mainStat
 		self.record = record
 		self.seatHeight = seatHeight
-		self.additionalStats = additionalStats
-		self.recordDate = recordDate
+		self.optionalStats = additionalStats
+		self.recordDate = recordDate.timeIntervalSince1970
 	}
 }
 
-extension ExerciseStats: Equatable {
+extension ExerciseRecord: Equatable {
 	static func == (lhs: Self, rhs: Self) -> Bool {
 		lhs.uuid == rhs.uuid
 	}
 }
 
-class ExerciseStatsManager {
-	static let shared = ExerciseStatsManager()
+class ExerciseRecordManager {
+	static let shared = ExerciseRecordManager()
 	
 	private var fileURL: URL {
 		let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
 		return paths[0].appendingPathComponent("ExerciseStats.json")
 	}
 	
-	private func saveStats(_ stats: [ExerciseStats]) {
+	private func saveStats(_ stats: [ExerciseRecord]) {
 		do {
 			let data = try JSONEncoder().encode(stats)
 			try data.write(to: fileURL, options: .atomic)
@@ -58,10 +68,10 @@ class ExerciseStatsManager {
 		}
 	}
 	
-	func loadStats() -> [ExerciseStats] {
+	func loadStats() -> [ExerciseRecord] {
 		do {
 			let data = try Data(contentsOf: fileURL)
-			return try JSONDecoder().decode([ExerciseStats].self, from: data)
+			return try JSONDecoder().decode([ExerciseRecord].self, from: data)
 		} catch {
 			print("Failed to load exercise stats: \(error)")
 			return []
@@ -72,7 +82,7 @@ class ExerciseStatsManager {
 		try? FileManager.default.removeItem(atPath: fileURL.path())
 	}
 	
-	func addOrUpdateStat(_ newStat: ExerciseStats) {
+	func addOrUpdateStat(_ newStat: ExerciseRecord) {
 		var stats = loadStats()
 		
 		if let index = stats.firstIndex(of: newStat) {
@@ -94,29 +104,35 @@ class ExerciseStatsManager {
 		if let index = stats.firstIndex(where: {
 			$0.uuid == newStat.uuid &&
 			$0.mainStat == newStat.mainStat &&
-			$0.additionalStats == newStat.additionalStats}
+			$0.optionalStats == newStat.optionalStats}
 		) {
-			if stats[index].record < newStat.getBestMainStatValue() {
-				let new = ExerciseStats(uuid: newStat.uuid,
+			if stats[index].record < newStat.getBestValue() {
+				let new = ExerciseRecord(uuid: newStat.uuid,
 										name: newStat.name,
 										mainStat: newStat.mainStat,
-										record: newStat.getBestMainStatValue(),
+										record: newStat.getBestValue(),
 										seatHeight: newStat.seatHeight,
-										additionalStats: newStat.additionalStats,
+										additionalStats: newStat.optionalStats,
 										recordDate: .now)
 				stats[index] = new
 			}
 		} else {
-			let new = ExerciseStats(uuid: newStat.uuid,
+			let new = ExerciseRecord(uuid: newStat.uuid,
 									name: newStat.name,
 									mainStat: newStat.mainStat,
-									record: newStat.getBestMainStatValue(),
+									record: newStat.getBestValue(),
 									seatHeight: newStat.seatHeight,
-									additionalStats: newStat.additionalStats,
+									additionalStats: newStat.optionalStats,
 									recordDate: .now)
 			stats.append(new)
 		}
 		
 		saveStats(stats)
+	}
+	
+	func getBestForExerciseWith(uuid: String) -> Double {
+		let loaded = loadStats()
+		
+		return loaded.first { $0.uuid == uuid }?.record ?? 0
 	}
 }
