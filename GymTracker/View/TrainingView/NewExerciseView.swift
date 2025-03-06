@@ -42,24 +42,20 @@ struct NewExerciseView: View {
 	
 	@Environment(\.dismiss) var dismiss
 	
-	@State private var name: String = ""
-	@State private var mainStatistic: ExerciseStatistic = .weight
-	@State private var additionalStats: Set<ExerciseStatistic> = []
+	@StateObject private var vModel = ViewModel()
+	
+	@State private var uuid = ""
 	@State private var exerciseSelected = false
 	@State private var selectedRecord: ExerciseRecord?
 	
 	let savedExercises: [ExerciseRecord]
 	let completion: (ExerciseModel) -> Void
 	
-	private var additionalCases: [ExerciseStatistic] {
-		ExerciseStatistic.allCases.filter { $0 != mainStatistic }
-	}
-	
 	private var filteredSavedExercises: [ExerciseRecord] {
-		if name.isEmpty {
+		if vModel.name.isEmpty {
 			return savedExercises.sorted { $0.name < $1.name }
 		} else {
-			return savedExercises.filter { $0.name.starts(with: name) }
+			return savedExercises.filter { $0.name.starts(with: vModel.name) }
 				.sorted { $0.name < $1.name }
 		}
 	}
@@ -67,13 +63,13 @@ struct NewExerciseView: View {
 	var body: some View {
 		ScrollView(.vertical) {
 			VStack {
-				TextField("Exercise name", text: $name)
+				TextField("Exercise name", text: $vModel.name)
 					.textFieldStyle(.roundedBorder)
 				
 				if !exerciseSelected {
 					VStack {
-						if !name.isEmpty {
-							Text("Add new: \(name)")
+						if !vModel.name.isEmpty {
+							Text("Add new: \(vModel.name)")
 								.frame(maxWidth: .infinity, alignment: .leading)
 								.fontWeight(.bold)
 								.contentShape(.rect)
@@ -97,22 +93,20 @@ struct NewExerciseView: View {
 				}
 				
 				if exerciseSelected {
-					MainStatPickerView(stat: $mainStatistic)
+					MainStatPickerView(stat: $vModel.mainStat)
 					
-					ForEach(ExerciseStatistic.allCases, id: \.self) { stat in
-						if stat != mainStatistic {
-							Toggle(isOn: Binding(
-								get: { additionalStats.contains(stat) },
-								set: { isSelected in
-									if isSelected {
-										additionalStats.insert(stat)
-									} else {
-										additionalStats.remove(stat)
-									}
+					ForEach(vModel.optionalStatsCases, id: \.self) { stat in
+						Toggle(isOn: Binding(
+							get: { vModel.optionalStats.contains(stat) },
+							set: { isSelected in
+								if isSelected {
+									vModel.optionalStats.insert(stat)
+								} else {
+									vModel.optionalStats.remove(stat)
 								}
-							)) {
-								Text(stat.rawValue)
 							}
+						)) {
+							Text(stat.rawValue)
 						}
 					}
 					
@@ -123,7 +117,9 @@ struct NewExerciseView: View {
 							let exercise = ExerciseModel(exerciseRecord: selectedRecord)
 							completion(exercise)
 						} else {
-							let exercise = ExerciseModel(name: name, mainStat: mainStatistic, optionalStats: Array(additionalStats))
+							let exercise = ExerciseModel(name: vModel.name,
+														 mainStat: vModel.mainStat,
+														 optionalStats: Array(vModel.optionalStats))
 							completion(exercise)
 						}
 						
@@ -135,13 +131,13 @@ struct NewExerciseView: View {
 			}
 			.padding()
 		}
-		.onChange(of: name) { oldValue, _ in
+		.onChange(of: vModel.name) { oldValue, _ in
 			if !oldValue.isEmpty {
 				exerciseSelected = false
 			}
 		}
-		.onChange(of: mainStatistic) { oldValue, _ in
-			additionalStats.remove(oldValue)
+		.onChange(of: vModel.mainStat) { oldValue, _ in
+			vModel.optionalStats.remove(oldValue)
 		}
 	}
 	
@@ -152,9 +148,9 @@ struct NewExerciseView: View {
 	
 	private func setStatsWith(record: ExerciseRecord) {
 		withAnimation {
-			mainStatistic = record.mainStat
-			additionalStats = Set(record.optionalStats)
-			name = record.name
+			vModel.mainStat = record.mainStat
+			vModel.optionalStats = Set(record.optionalStats)
+			vModel.name = record.name
 			selectedRecord = record
 			exerciseSelected = true
 		}

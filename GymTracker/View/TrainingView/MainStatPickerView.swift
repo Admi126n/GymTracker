@@ -25,11 +25,11 @@ struct MainStatPickerView: View {
 				.frame(height: 40)
 				.frame(minWidth: 40, maxWidth: statistic == stat ? .infinity : nil)
 				.padding(.horizontal, 4)
-				.clipShape(.rect(cornerRadius: 5, style: .continuous))
+				.clipShape(.rect(cornerRadius: 15, style: .continuous))
 				.contentShape(.rect)
 				.overlay {
-					RoundedRectangle(cornerRadius: 5)
-						.stroke(.secondary, lineWidth: 1)
+					RoundedRectangle(cornerRadius: 15, style: .continuous)
+						.stroke(statistic == stat ? Color.indigo : .secondary, lineWidth: 2)
 				}
 				.onTapGesture {
 					withAnimation(.bouncy) {
