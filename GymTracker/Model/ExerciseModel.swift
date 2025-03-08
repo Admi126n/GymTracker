@@ -24,6 +24,10 @@ final class ExerciseModel {
 		setsPersistent.sorted(using: KeyPathComparator(\.timestamp))
 	}
 	
+	var allStats: [ExerciseStatistic] {
+		optionalStats + [mainStat]
+	}
+	
 	init(name: String, mainStat: ExerciseStatistic, optionalStats: [ExerciseStatistic] = [], startDate: Date = .now) {
 		self.uuid = UUID().uuidString
 		self.name = name

@@ -25,20 +25,6 @@ final class SetModel {
 	}
 	
 	var description: String {
-		"\(allStatsDescription)"
-	}
-	
-	private var allStatsDescription: String {
-		return stats.map { "\($0.key): \($0.value) \($0.key.unit)" }.joined(separator: "\n")
-	}
-}
-
-extension SetModel: Comparable {
-	static func < (lhs: SetModel, rhs: SetModel) -> Bool {
-		if lhs.mainStat == .timeLessIsBetter {
-			return lhs.mainStatValue > rhs.mainStatValue
-		} else {
-			return lhs.mainStatValue < rhs.mainStatValue
-		}
+		stats.map { "\($0.key): \(String(format: "%g", $0.value)) \($0.key.unit)" }.joined(separator: "\n")
 	}
 }

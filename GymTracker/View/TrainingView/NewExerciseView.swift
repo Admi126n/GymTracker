@@ -7,39 +7,6 @@
 
 import SwiftUI
 
-struct SavedExerciseCell: View {
-	
-	let exerciseRecord: ExerciseRecord
-	
-	var body: some View {
-		VStack(alignment: .leading) {
-			Text(exerciseRecord.name)
-				.frame(maxWidth: .infinity, alignment: .leading)
-				.fontWeight(.bold)
-			
-			(Text("Record: ") +
-			 Text(exerciseRecord.record, format: .number) +
-			 Text(" \(exerciseRecord.mainStat.unit)"))
-				.font(.subheadline)
-			
-			if !exerciseRecord.optionalStats.isEmpty {
-				(Text("Optional stats: ") +
-				 Text(ListFormatter.localizedString(byJoining: exerciseRecord.optionalStats.map { $0.rawValue })))
-				.font(.footnote)
-			}
-			
-		}
-		.contentShape(.rect)
-		.padding(8)
-		.background(HierarchicalShapeStyle.quaternary)
-		.overlay {
-			RoundedRectangle(cornerRadius: 15, style: .continuous)
-				.stroke(.indigo, lineWidth: 5)
-		}
-		.clipShape(.rect(cornerRadius: 15, style: .continuous))
-	}
-}
-
 struct NewExerciseView: View {
 	
 	@Environment(\.dismiss) var dismiss
@@ -84,7 +51,7 @@ struct NewExerciseView: View {
 						}
 						
 						ForEach(filteredSavedExercises, id: \.self) { record in
-							SavedExerciseCell(exerciseRecord: record)
+							ExerciseRecordCell(exerciseRecord: record)
 								.onTapGesture {
 									setStatsWith(record: record)
 								}

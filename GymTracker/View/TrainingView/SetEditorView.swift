@@ -70,12 +70,12 @@ struct SetEditorView: View {
 	
 	init(exercise: ExerciseModel, completion: @escaping () -> Void) {
 		self.exercise = exercise
-		self.stats = exercise.optionalStats.reduce(into: [:]) { $0[$1] = 0 }
+		self.stats = exercise.allStats.reduce(into: [:]) { $0[$1] = 0 }
 		self.completion = completion
 	}
 	
 	private func clearValues() {
-		stats = exercise.optionalStats.reduce(into: [:]) { $0[$1] = 0 }
+		stats = exercise.allStats.reduce(into: [:]) { $0[$1] = 0 }
 	}
 	
 	private func dictBinding(for key: ExerciseStatistic) -> Binding<Double> {
