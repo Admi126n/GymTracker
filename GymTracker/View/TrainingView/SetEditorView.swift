@@ -15,55 +15,79 @@ struct SetEditorView: View {
 	
 	@Bindable var exercise: ExerciseModel
 	
+	@FocusState private var focused: ExerciseStatistic?
+	
 	@State private var stats: [ExerciseStatistic: Double]
+	@State private var showSheet = false
 	
 	let completion: () -> Void
 	
 	var body: some View {
-		HStack {
-			Text("\(exercise.sets.count + 1).")
-			
-			if exercise.mainStat == .weight && exercise.optionalStats == [.repetitions] {
-				TextField("Weight", value: dictBinding(for: .weight), format: .number)
-					.keyboardType(.decimalPad)
-					.frame(width: 50)
-					.textFieldStyle(.roundedBorder)
+		VStack {
+			HStack {
+				Text("\(exercise.sets.count + 1).")
 				
-				Text("kg x")
-				
-				TextField("Repetitions", value: dictBinding(for: .repetitions), format: .number)
-					.keyboardType(.numberPad)
-					.textFieldStyle(.roundedBorder)
-			} else {
-				VStack {
-					HStack {
-						Text(exercise.mainStat.rawValue)
-						
-						TextField("Value", value: dictBinding(for: exercise.mainStat), format: .number)
-							.keyboardType(.decimalPad)
-							.textFieldStyle(.roundedBorder)
-					}
-					
-					ForEach(exercise.optionalStats, id: \.self) { stat in
-						HStack {
-							Text(stat.rawValue)
-							
-							TextField("Value", value: dictBinding(for: stat), format: .number)
-								.keyboardType(.decimalPad)
-								.textFieldStyle(.roundedBorder)
+				VStack(alignment: .leading) {
+					ForEach(exercise.allStats.sorted { $0.rawValue < $1.rawValue }, id: \.self) { stat in
+						if stat == .timeLessIsBetter || stat == .timeMoreIsBetter {
+							HStack {
+								StatSymbolView(symbolName: stat.symbol, mainStat: stat == exercise.mainStat)
+								
+								Text(stats[stat]!.asTimeComponents)
+									.frame(maxWidth: .infinity, alignment: .leading)
+									.statTextField()
+									.onTapGesture {
+										showSheet = true
+									}
+									.padding([.trailing, .top], 8)
+									.padding(.bottom, 4)
+							}
+							.sheet(isPresented: $showSheet) {
+								TimePickerSheet(value: dictBinding(for: stat))
+							}
+						} else {
+							HStack {
+								StatSymbolView(symbolName: stat.symbol, mainStat: stat == exercise.mainStat)
+								
+								TextField("Value", value: dictBinding(for: stat), format: .number)
+									.keyboardType(stat == .repetitions ? .numberPad : .decimalPad)
+									.statTextField()
+									.focused($focused, equals: stat)
+								
+								Text(stat.unit)
+							}
 						}
 					}
 				}
 			}
 			
-			Spacer()
+			Rectangle()
+				.frame(height: 10)
+				.foregroundStyle(.clear)
 			
-			Button("Save", systemImage: "checkmark") {
-				withAnimation(.easeOut) {
-					exercise.addSet(stats: stats)
-					clearValues()
+			HStack {
+				Spacer()
+				
+				Button("Next set", systemImage: "checkmark") {
+					withAnimation(.easeOut) {
+						exercise.addSet(stats: stats)
+						clearValues()
+					}
+					completion()
 				}
-				completion()
+				
+				Spacer()
+			}
+		}
+		.toolbar {
+			if focused != nil {
+				ToolbarItemGroup(placement: .keyboard) {
+					Spacer()
+					// Add logic to change focus state to next field
+					Button("Done") {
+						focused = nil
+					}
+				}
 			}
 		}
 	}
@@ -96,5 +120,24 @@ struct SetEditorView: View {
 			.modelContainer(container)
 	} catch {
 		fatalError("Failed to create model container")
+	}
+}
+
+private struct StatTextField: ViewModifier {
+	func body(content: Content) -> some View {
+		content
+			.padding(4)
+			.background(.background)
+			.clipShape(.rect(cornerRadius: 5))
+			.overlay {
+				RoundedRectangle(cornerRadius: 5, style: .circular)
+					.stroke(.quinary, lineWidth: 1)
+			}
+	}
+}
+
+private extension View {
+	func statTextField() -> some View {
+		modifier(StatTextField())
 	}
 }

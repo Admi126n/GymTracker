@@ -19,41 +19,43 @@ struct TrainingView: View {
 	@State private var showingNewExerciseView = false
 	
 	var body: some View {
-		VStack {
-			TimerView(from: Date(timeIntervalSince1970: training.startDate))
-			
-			Button("End training", role: .destructive) {
-				ExerciseRecordManager.shared.addOrUpdateStats(training.exercises)
-				training.finishTraining()
-				dismiss()
-			}
-			.buttonStyle(.bordered)
-			
-			ScrollViewReader { proxy in
-				ScrollView {
-					ForEach(training.exercises) { exercise in
-						ExerciseView(exercise: exercise, showTextField: training.exercises.last == exercise) {
-							scrollToBottom(proxy)
-						}
-					}
-					
-					Spacer()
-						.frame(minHeight: 100)
-						.id(bottomId)
+		NavigationStack {
+			VStack {
+				TimerView(from: Date(timeIntervalSince1970: training.startDate))
+				
+				Button("End training", role: .destructive) {
+					ExerciseRecordManager.shared.addOrUpdateStats(training.exercises)
+					training.finishTraining()
+					dismiss()
 				}
+				.buttonStyle(.bordered)
+				
+				ScrollViewReader { proxy in
+					ScrollView {
+						ForEach(training.exercises) { exercise in
+							ExerciseView(exercise: exercise, showTextField: training.exercises.last == exercise) {
+								scrollToBottom(proxy)
+							}
+						}
+						
+						Spacer()
+							.frame(minHeight: 100)
+							.id(bottomId)
+					}
+				}
+				.containerRelativeFrame([.horizontal], alignment: .top)
+				
+				Button("Next exercise") {
+					showingNewExerciseView.toggle()
+				}
+				.buttonStyle(.borderedProminent)
 			}
-			.containerRelativeFrame([.horizontal], alignment: .top)
-			
-			Button("Next exercise") {
-				showingNewExerciseView.toggle()
+			.sheet(isPresented: $showingNewExerciseView) {
+				NewExerciseView { newExercise in
+					training.addExercise(newExercise)
+				}
+				.presentationDetents([.medium, .large])
 			}
-			.buttonStyle(.borderedProminent)
-		}
-		.sheet(isPresented: $showingNewExerciseView) {
-			NewExerciseView { newExercise in
-				training.addExercise(newExercise)
-			}
-			.presentationDetents([.medium, .large])
 		}
 	}
 	

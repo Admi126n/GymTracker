@@ -74,8 +74,7 @@ struct ExerciseView: View {
 					HStack {
 						Text("\(index + 1).")
 						
-						Text("\(item.description)")
-							.frame(maxWidth: .infinity, alignment: .leading)
+						setDescription(item)
 					}
 					
 					Rectangle()
@@ -120,6 +119,25 @@ struct ExerciseView: View {
 		self._isExpanded = State(initialValue: showTextField)
 		self._seatHeight = State(initialValue: exercise.seatHeight ?? "")
 		self.record = ExerciseRecordManager.shared.getBestForExerciseWith(uuid: exercise.uuid)
+	}
+	
+	private func setDescription(_ set: SetModel) -> some View {
+		VStack(alignment: .leading) {
+			ForEach(set.stats.keys.sorted { $0.rawValue < $1.rawValue }, id: \.self) { stat in
+				HStack {
+					StatSymbolView(symbolName: stat.symbol, mainStat: stat == exercise.mainStat)
+				
+					switch stat {
+					case .timeLessIsBetter, .timeMoreIsBetter:
+						Text(set.stats[stat]!.asTimeComponents)
+					default:
+						Text(set.stats[stat]!, format: .number)
+					}
+					
+					Text(stat.unit)
+				}
+			}
+		}
 	}
 }
 
