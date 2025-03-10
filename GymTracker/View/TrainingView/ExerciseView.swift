@@ -12,13 +12,15 @@ struct ExerciseView: View {
 	@Bindable var exercise: ExerciseModel
 
 	@State private var isExpanded: Bool
+	@State private var seatHeight: String
+	@State private var showAlert = false
 	
 	let record: Double
 	let showTextField: Bool
 	let completion: () -> Void
 	
 	var body: some View {
-		VStack {
+		VStack(alignment: .leading) {
 			HStack {
 				Text(exercise.name)
 					.frame(maxWidth: .infinity, alignment: .leading)
@@ -44,6 +46,22 @@ struct ExerciseView: View {
 					withAnimation(.bouncy) {
 						isExpanded.toggle()
 					}
+				}
+			}
+			
+			if exercise.seatHeight == nil {
+				Button {
+					showAlert = true
+				} label: {
+					Label("Add seat height", systemImage: "pencil")
+						.font(.footnote)
+				}
+			} else {
+				Button {
+					showAlert = true
+				} label: {
+					Label("Seat height: \(exercise.seatHeight!)", systemImage: "chair")
+						.font(.footnote)
 				}
 			}
 			
@@ -83,6 +101,12 @@ struct ExerciseView: View {
 				isExpanded = newValue
 			}
 		}
+		.alert("Set seat height", isPresented: $showAlert) {
+			TextField("Seat height", text: $seatHeight)
+			Button("OK") {
+				exercise.setSeatHeight(seatHeight)
+			}
+		}
 	}
 	
 	init(
@@ -94,6 +118,7 @@ struct ExerciseView: View {
 		self.showTextField = showTextField
 		self.completion = completion
 		self._isExpanded = State(initialValue: showTextField)
+		self._seatHeight = State(initialValue: exercise.seatHeight ?? "")
 		self.record = ExerciseRecordManager.shared.getBestForExerciseWith(uuid: exercise.uuid)
 	}
 }
