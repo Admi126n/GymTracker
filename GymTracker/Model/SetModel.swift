@@ -16,8 +16,11 @@ final class SetModel {
 	
 	init(mainStat: ExerciseStatistic, stats: [ExerciseStatistic: Double], timestamp: Date = .now) {
 		self.mainStat = mainStat
-		self.stats = stats
 		self.timestamp = timestamp.timeIntervalSince1970
+		
+		var tmp = stats
+		tmp[.repetitions] = tmp[.repetitions]?.rounded()
+		self.stats = tmp
 	}
 	
 	var mainStatValue: Double {

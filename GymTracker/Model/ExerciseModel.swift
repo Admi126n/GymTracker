@@ -54,4 +54,12 @@ final class ExerciseModel {
 	func getBestValue() -> Double {
 		setsPersistent.best()?.mainStatValue ?? 0
 	}
+	
+	func setSeatHeight(_ value: String) {
+		if value.isEmpty {
+			seatHeight = nil
+		} else {
+			seatHeight = value
+		}
+	}
 }
