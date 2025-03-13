@@ -128,7 +128,7 @@ struct ExerciseView: View {
 					StatSymbolView(symbolName: stat.symbol, mainStat: stat == exercise.mainStat)
 				
 					switch stat {
-					case .timeLessIsBetter, .timeMoreIsBetter:
+					case .speed, .duration:
 						Text(set.stats[stat]!.asTimeComponents)
 					default:
 						Text(set.stats[stat]!, format: .number)

@@ -23,16 +23,16 @@ extension NewExerciseView {
 			var output: Set<ExerciseStatistic> = []
 			
 			switch mainStat {
-			case .timeMoreIsBetter, .timeLessIsBetter:
-				output = Set(ExerciseStatistic.allCases.filter { $0 != .timeMoreIsBetter && $0 != .timeLessIsBetter})
+			case .duration, .speed:
+				output = Set(ExerciseStatistic.allCases.filter { $0 != .duration && $0 != .speed})
 			default:
 				output = Set(ExerciseStatistic.allCases.filter { $0 != mainStat })
 			}
 			
-			if optionalStats.contains(.timeLessIsBetter) {
-				output.remove(.timeMoreIsBetter)
-			} else if optionalStats.contains(.timeMoreIsBetter) {
-				output.remove(.timeLessIsBetter)
+			if optionalStats.contains(.speed) {
+				output.remove(.duration)
+			} else if optionalStats.contains(.duration) {
+				output.remove(.speed)
 			}
 			
 			return Array(output).sorted(using: SortDescriptor(\.rawValue))
@@ -41,10 +41,10 @@ extension NewExerciseView {
 		private func removeStatFromOptionalStats() {
 			optionalStats.remove(mainStat)
 			
-			if mainStat == .timeLessIsBetter {
-				optionalStats.remove(.timeMoreIsBetter)
-			} else if mainStat == .timeMoreIsBetter {
-				optionalStats.remove(.timeLessIsBetter)
+			if mainStat == .speed {
+				optionalStats.remove(.duration)
+			} else if mainStat == .duration {
+				optionalStats.remove(.speed)
 			}
 		}
 	}

@@ -16,6 +16,7 @@ final class ExerciseModel {
 	private(set) var optionalStats: [ExerciseStatistic]
 	private(set) var seatHeight: String?
 	private(set) var timestamp: TimeInterval
+	private(set) var notes: String = ""
 	
 	@Relationship(deleteRule: .cascade)
 	private var setsPersistent: [SetModel] = []

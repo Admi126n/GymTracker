@@ -29,7 +29,7 @@ struct SetEditorView: View {
 				
 				VStack(alignment: .leading) {
 					ForEach(exercise.allStats.sorted { $0.rawValue < $1.rawValue }, id: \.self) { stat in
-						if stat == .timeLessIsBetter || stat == .timeMoreIsBetter {
+						if stat == .speed || stat == .duration {
 							HStack {
 								StatSymbolView(symbolName: stat.symbol, mainStat: stat == exercise.mainStat)
 								

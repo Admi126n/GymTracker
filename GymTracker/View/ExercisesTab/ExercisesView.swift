@@ -33,8 +33,8 @@ struct ExercisesView: View {
 		let exercises = [
 			ExerciseModel(name: "Example", mainStat: .weight),
 			ExerciseModel(name: "Example", mainStat: .distance),
-			ExerciseModel(name: "Example", mainStat: .timeLessIsBetter),
-			ExerciseModel(name: "Example", mainStat: .timeMoreIsBetter),
+			ExerciseModel(name: "Example", mainStat: .speed),
+			ExerciseModel(name: "Example", mainStat: .duration),
 			ExerciseModel(name: "Example", mainStat: .weight),
 			ExerciseModel(name: "Example", mainStat: .weight)
 		]

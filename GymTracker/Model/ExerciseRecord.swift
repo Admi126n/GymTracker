@@ -15,6 +15,7 @@ struct ExerciseRecord: Codable, Hashable {
 	var seatHeight: String?
 	var optionalStats: [ExerciseStatistic]
 	var recordDate: TimeInterval
+	var notes: String = ""
 	
 	init(
 		uuid: String,

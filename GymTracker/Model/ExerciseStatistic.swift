@@ -11,8 +11,8 @@ enum ExerciseStatistic: String, CaseIterable, Codable {
 	case weight = "Weight"
 	case distance = "Distance"
 	case repetitions = "Repetitions"
-	case timeMoreIsBetter = "Time - more is better"
-	case timeLessIsBetter = "Time - less is better"
+	case duration = "Duration"
+	case speed = "Speed"
 	
 	var symbol: String {
 		switch self {
@@ -22,9 +22,9 @@ enum ExerciseStatistic: String, CaseIterable, Codable {
 			"ruler"
 		case .repetitions:
 			"repeat"
-		case .timeMoreIsBetter:
+		case .duration:
 			"hourglass.tophalf.filled"
-		case .timeLessIsBetter:
+		case .speed:
 			"timer"
 		}
 	}
@@ -35,11 +35,7 @@ enum ExerciseStatistic: String, CaseIterable, Codable {
 			"kg"
 		case .distance:
 			"km"
-		case .repetitions:
-			""
-		case .timeMoreIsBetter:
-			""
-		case .timeLessIsBetter:
+		default:
 			""
 		}
 	}
