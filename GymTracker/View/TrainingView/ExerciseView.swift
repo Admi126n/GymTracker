@@ -49,7 +49,7 @@ struct ExerciseView: View {
 				Spacer()
 				
 				if record != 0 {
-					if exercise.mainStat == .duration || exercise.mainStat == .speed {
+					if exercise.mainStat.isTimeReleated {
 						Text("Best: \(record.asTimeComponents) \(exercise.mainStat.unit)")
 					} else {
 						Text("Best: ") +

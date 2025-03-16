@@ -22,10 +22,9 @@ extension NewExerciseView {
 		var optionalStatsCases: [ExerciseStatistic] {
 			var output: Set<ExerciseStatistic> = []
 			
-			switch mainStat {
-			case .duration, .speed:
-				output = Set(ExerciseStatistic.allCases.filter { $0 != .duration && $0 != .speed})
-			default:
+			if mainStat.isTimeReleated {
+				output = Set(ExerciseStatistic.allCases.filter { !$0.isTimeReleated })
+			} else {
 				output = Set(ExerciseStatistic.allCases.filter { $0 != mainStat })
 			}
 			

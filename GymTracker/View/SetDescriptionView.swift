@@ -17,10 +17,9 @@ struct SetDescriptionView: View {
 					HStack {
 						StatSymbolView(symbolName: stat.symbol, mainStat: stat == set.mainStat)
 					
-						switch stat {
-						case .speed, .duration:
+						if stat.isTimeReleated {
 							Text(set.stats[stat]!.asTimeComponents)
-						default:
+						} else {
 							Text(set.stats[stat]!, format: .number)
 						}
 						

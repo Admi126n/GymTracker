@@ -39,4 +39,13 @@ enum ExerciseStatistic: String, CaseIterable, Codable {
 			""
 		}
 	}
+	
+	var isTimeReleated: Bool {
+		switch self {
+		case .duration, .speed:
+			return true
+		default:
+			return false
+		}
+	}
 }

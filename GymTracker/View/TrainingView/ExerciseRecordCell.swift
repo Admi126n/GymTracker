@@ -17,12 +17,11 @@ struct ExerciseRecordCell: View {
 				.frame(maxWidth: .infinity, alignment: .leading)
 				.fontWeight(.bold)
 			
-			switch exerciseRecord.mainStat {
-			case .speed, .duration:
+			if exerciseRecord.mainStat.isTimeReleated {
 				(Text("Record: ") +
 				 Text(exerciseRecord.record.asTimeComponents))
-					.font(.subheadline)
-			default:
+				.font(.subheadline)
+			} else {
 				(Text("Record: ") +
 				 Text(exerciseRecord.record, format: .number) +
 				 Text(" \(exerciseRecord.mainStat.unit)"))
