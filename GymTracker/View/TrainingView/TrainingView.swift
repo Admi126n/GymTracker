@@ -28,7 +28,7 @@ struct TrainingView: View {
 					training.finishTraining()
 					dismiss()
 				}
-				.buttonStyle(.bordered)
+				.buttonStyle(Pressable(background: .endButtonBackground, foreground: .red))
 				
 				ScrollViewReader { proxy in
 					ScrollView {
@@ -48,7 +48,8 @@ struct TrainingView: View {
 				Button("Next exercise") {
 					showingNewExerciseView.toggle()
 				}
-				.buttonStyle(.borderedProminent)
+				.buttonStyle(Pressable(background: .green, foreground: .background))
+				.padding(.bottom, 4)
 			}
 			.sheet(isPresented: $showingNewExerciseView) {
 				NewExerciseView { newExercise in
@@ -75,7 +76,7 @@ struct TrainingView: View {
 		let config = ModelConfiguration(isStoredInMemoryOnly: true)
 		let container = try ModelContainer(for: TrainingModel.self, configurations: config)
 		let training = TrainingModel(startDate: .now)
-		let exercise = ExerciseModel(name: "Hello", mainStat: .weight)
+		let exercise = ExerciseModel(name: "Push ups", mainStat: .weight)
 		for _ in 0...10 {
 			exercise.addSet(stats: [.weight: 100])
 		}

@@ -17,10 +17,17 @@ struct ExerciseRecordCell: View {
 				.frame(maxWidth: .infinity, alignment: .leading)
 				.fontWeight(.bold)
 			
-			(Text("Record: ") +
-			 Text(exerciseRecord.record, format: .number) +
-			 Text(" \(exerciseRecord.mainStat.unit)"))
-				.font(.subheadline)
+			switch exerciseRecord.mainStat {
+			case .speed, .duration:
+				(Text("Record: ") +
+				 Text(exerciseRecord.record.asTimeComponents))
+					.font(.subheadline)
+			default:
+				(Text("Record: ") +
+				 Text(exerciseRecord.record, format: .number) +
+				 Text(" \(exerciseRecord.mainStat.unit)"))
+					.font(.subheadline)
+			}
 			
 			if !exerciseRecord.optionalStats.isEmpty {
 				(Text("Optional stats: ") +
@@ -29,13 +36,8 @@ struct ExerciseRecordCell: View {
 			}
 			
 		}
-		.contentShape(.rect)
 		.padding(8)
 		.background(HierarchicalShapeStyle.quaternary)
-		.overlay {
-			RoundedRectangle(cornerRadius: 15, style: .continuous)
-				.stroke(.indigo, lineWidth: 5)
-		}
 		.clipShape(.rect(cornerRadius: 15, style: .continuous))
 	}
 }

@@ -36,18 +36,22 @@ struct NewExerciseView: View {
 				if !exerciseSelected {
 					VStack {
 						if !vModel.name.isEmpty {
-							Text("Add new: \(vModel.name)")
-								.frame(maxWidth: .infinity, alignment: .leading)
-								.fontWeight(.bold)
-								.contentShape(.rect)
-								.padding(4)
-								.overlay(
-									RoundedRectangle(cornerRadius: 5)
-										.stroke(.secondary, lineWidth: 1)
-								)
-								.onTapGesture {
-									setStats()
-								}
+							HStack(spacing: 4) {
+								Text("Add new:")
+									.bold()
+								
+								Text(vModel.name)
+								
+								Spacer()
+							}
+							.fontWeight(.bold)
+							.padding(8)
+							.background(HierarchicalShapeStyle.quaternary)
+							.clipShape(.rect(cornerRadius: 15, style: .continuous))
+							
+							.onTapGesture {
+								setStats()
+							}
 						}
 						
 						ForEach(filteredSavedExercises, id: \.self) { record in
@@ -97,7 +101,7 @@ struct NewExerciseView: View {
 						dismiss()
 					}
 					.disabled(!exerciseSelected)
-					.buttonStyle(.borderedProminent)
+					.buttonStyle(Pressable(background: .green, foreground: .background))
 				}
 			}
 			.padding()

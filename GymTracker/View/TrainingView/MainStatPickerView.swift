@@ -16,7 +16,8 @@ struct MainStatPickerView: View {
 			ForEach(ExerciseStatistic.allCases, id: \.self) { statistic in
 				HStack {
 					Image(systemName: statistic.symbol)
-						.foregroundStyle(statistic == stat ? .primary : .secondary)
+						.foregroundStyle(statistic == stat ? .green : .secondary)
+						.fontWeight(statistic == stat ? .bold : nil)
 					
 					if statistic == stat {
 						Text(statistic.rawValue)
@@ -29,7 +30,7 @@ struct MainStatPickerView: View {
 				.contentShape(.rect)
 				.overlay {
 					RoundedRectangle(cornerRadius: 15, style: .continuous)
-						.stroke(statistic == stat ? Color.indigo : .secondary, lineWidth: 2)
+						.stroke(statistic == stat ? Color.green : .secondary, lineWidth: 2)
 				}
 				.onTapGesture {
 					withAnimation(.bouncy) {

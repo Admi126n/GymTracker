@@ -22,6 +22,13 @@ struct SetEditorView: View {
 	
 	let completion: () -> Void
 	
+	private let numberFormatter: NumberFormatter = {
+		let formatter = NumberFormatter()
+		formatter.numberStyle = .none
+		formatter.zeroSymbol  = ""
+		return formatter
+	}()
+	
 	var body: some View {
 		VStack {
 			HStack {
@@ -33,14 +40,21 @@ struct SetEditorView: View {
 							HStack {
 								StatSymbolView(symbolName: stat.symbol, mainStat: stat == exercise.mainStat)
 								
-								Text(stats[stat]!.asTimeComponents)
-									.frame(maxWidth: .infinity, alignment: .leading)
-									.statTextField()
-									.onTapGesture {
-										showSheet = true
+								Group {
+									if stats[stat]! == 0 {
+										Text(stat.rawValue)
+											.foregroundStyle(.tertiary)
+									} else {
+										Text(stats[stat]!.asTimeComponents)
 									}
-									.padding([.trailing, .top], 8)
-									.padding(.bottom, 4)
+								}
+								.frame(maxWidth: .infinity, alignment: .leading)
+								.statTextField()
+								.onTapGesture {
+									showSheet = true
+								}
+								.padding(.trailing, 8)
+								.padding(.bottom, 4)
 							}
 							.sheet(isPresented: $showSheet) {
 								TimePickerSheet(value: dictBinding(for: stat))
@@ -49,7 +63,7 @@ struct SetEditorView: View {
 							HStack {
 								StatSymbolView(symbolName: stat.symbol, mainStat: stat == exercise.mainStat)
 								
-								TextField("Value", value: dictBinding(for: stat), format: .number)
+								TextField(stat.rawValue, value: dictBinding(for: stat), formatter: numberFormatter)
 									.keyboardType(stat == .repetitions ? .numberPad : .decimalPad)
 									.statTextField()
 									.focused($focused, equals: stat)
@@ -68,13 +82,15 @@ struct SetEditorView: View {
 			HStack {
 				Spacer()
 				
-				Button("Next set", systemImage: "checkmark") {
+				Button("Next set") {
 					withAnimation(.easeOut) {
 						exercise.addSet(stats: stats)
 						clearValues()
 					}
 					completion()
 				}
+				.buttonStyle(Pressable(background: .green, foreground: .background))
+				.disabled(stats.allSatisfy { $1.isZero })
 				
 				Spacer()
 			}
@@ -82,6 +98,16 @@ struct SetEditorView: View {
 		.toolbar {
 			if focused != nil {
 				ToolbarItemGroup(placement: .keyboard) {
+					if focused == .weight {
+						Button {
+							withAnimation {
+								stats[.weight]! *= -1
+							}
+						} label: {
+							Image(systemName: "plus.forwardslash.minus")
+						}
+					}
+					
 					Spacer()
 					// Add logic to change focus state to next field
 					Button("Done") {
@@ -114,7 +140,10 @@ struct SetEditorView: View {
 	do {
 		let config = ModelConfiguration(isStoredInMemoryOnly: true)
 		let container = try ModelContainer(for: ExerciseModel.self, configurations: config)
-		let exercise = ExerciseModel(name: "Push ups", mainStat: .repetitions)
+		let exercise = ExerciseModel(
+			name: "Push ups",
+			mainStat: .weight,
+			optionalStats: [.duration, .distance, .repetitions])
 		
 		return SetEditorView(exercise: exercise, completion: {})
 			.modelContainer(container)
