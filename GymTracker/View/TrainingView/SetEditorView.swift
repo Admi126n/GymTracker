@@ -17,17 +17,20 @@ struct SetEditorView: View {
 	
 	@FocusState private var focused: ExerciseStatistic?
 	
-	@State private var stats: [ExerciseStatistic: Double]
+	@State private var stats: [ExerciseStatistic: String]
 	@State private var showSheet = false
 	
 	let completion: () -> Void
 	
-	private let numberFormatter: NumberFormatter = {
-		let formatter = NumberFormatter()
-		formatter.numberStyle = .none
-		formatter.zeroSymbol  = ""
-		return formatter
-	}()
+	var statsValid: Bool {
+		stats.allSatisfy { Double($0.value.replacingOccurrences(of: ",", with: ".")) != nil }
+	}
+	
+	var statsAsDoubles: [ExerciseStatistic: Double] {
+		Dictionary(uniqueKeysWithValues: stats.map { key, value in
+			(key, Double(value.replacingOccurrences(of: ",", with: ".")) ?? 0)
+		})
+	}
 	
 	var body: some View {
 		VStack {
@@ -41,11 +44,11 @@ struct SetEditorView: View {
 								StatSymbolView(symbolName: stat.symbol, mainStat: stat == exercise.mainStat)
 								
 								Group {
-									if stats[stat]! == 0 {
+									if let value = stats[stat], let numValue = Double(value), numValue != 0 {
+										Text(numValue.asTimeComponents)
+									} else {
 										Text(stat.rawValue)
 											.foregroundStyle(.tertiary)
-									} else {
-										Text(stats[stat]!.asTimeComponents)
 									}
 								}
 								.frame(maxWidth: .infinity, alignment: .leading)
@@ -63,7 +66,7 @@ struct SetEditorView: View {
 							HStack {
 								StatSymbolView(symbolName: stat.symbol, mainStat: stat == exercise.mainStat)
 								
-								TextField(stat.rawValue, value: dictBinding(for: stat), formatter: numberFormatter)
+								TextField(stat.rawValue, text: stringDictBinding(for: stat))
 									.keyboardType(stat == .repetitions ? .numberPad : .decimalPad)
 									.statTextField()
 									.focused($focused, equals: stat)
@@ -84,13 +87,13 @@ struct SetEditorView: View {
 				
 				Button("Next set") {
 					withAnimation(.easeOut) {
-						exercise.addSet(stats: stats)
+						exercise.addSet(stats: statsAsDoubles)
 						clearValues()
 					}
 					completion()
 				}
 				.buttonStyle(Pressable(background: .green, foreground: .background))
-				.disabled(stats.allSatisfy { $1.isZero })
+				.disabled(!statsValid)
 				
 				Spacer()
 			}
@@ -101,7 +104,9 @@ struct SetEditorView: View {
 					if focused == .weight {
 						Button {
 							withAnimation {
-								stats[.weight]! *= -1
+								guard let value = stats[.weight] else { return }
+								
+								stats[.weight] = "-" + value
 							}
 						} label: {
 							Image(systemName: "plus.forwardslash.minus")
@@ -120,19 +125,35 @@ struct SetEditorView: View {
 	
 	init(exercise: ExerciseModel, completion: @escaping () -> Void) {
 		self.exercise = exercise
-		self.stats = exercise.allStats.reduce(into: [:]) { $0[$1] = 0 }
+		self.stats = exercise.allStats.reduce(into: [:]) { $0[$1] = "" }
 		self.completion = completion
 	}
 	
 	private func clearValues() {
-		stats = exercise.allStats.reduce(into: [:]) { $0[$1] = 0 }
+		stats = exercise.allStats.reduce(into: [:]) { $0[$1] = "" }
 	}
 	
 	private func dictBinding(for key: ExerciseStatistic) -> Binding<Double> {
 		return Binding(
-			get: { stats[key, default: 0] },
-			set: { stats[key] = $0 }
+			get: { Double(stats[key, default: "0"]) ?? 0 },
+			set: { stats[key] = String($0) }
 		)
+	}
+	
+	private func stringDictBinding(for key: ExerciseStatistic) -> Binding<String> {
+		return Binding(
+			get: { stats[key, default: ""] },
+			set: { stats[key] = validateInput($0) }
+		)
+	}
+	
+	private func validateInput(_ text: String) -> String {
+		let components = text.components(separatedBy: ",")
+		if components.count > 2 {
+			return "\(components.first!),\(components.last!)"
+		}
+		
+		return text.filter { "0123456789,-".contains($0) }
 	}
 }
 
