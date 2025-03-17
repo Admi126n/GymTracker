@@ -45,7 +45,7 @@ struct Pressable<S: ShapeStyle>: ButtonStyle {
 				.offset(y: configuration.isPressed ? borderWidth : 0)
 				.background(
 					RoundedRectangle(cornerRadius: cornerRadius)
-						.fill(background.mix(with: .gray, by: isEnabled ? 0.3 : 0.8))
+						.fill(background.mix(with: .black, by: isEnabled ? 0.3 : 0.4))
 						.cornerRadius(cornerRadius)
 						.offset(y: borderWidth)
 				)
