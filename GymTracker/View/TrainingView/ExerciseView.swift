@@ -79,10 +79,14 @@ struct ExerciseView: View {
 					.foregroundStyle(.secondary)
 				
 				ForEach(Array(zip(exercise.sets.indices, exercise.sets)), id: \.0) { index, item in
-					HStack {
-						Text("\(index + 1).")
-						
-						SetDescriptionView(set: item)
+					SwipableView(cornerRadius: 10, action: .delete(action: {
+						exercise.remove(set: item)
+					})) {
+						HStack {
+							Text("\(index + 1).")
+							
+							SetDescriptionView(set: item)
+						}
 					}
 					
 					Rectangle()

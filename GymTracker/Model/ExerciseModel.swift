@@ -63,4 +63,14 @@ final class ExerciseModel {
 			seatHeight = value
 		}
 	}
+	
+	@discardableResult
+	func remove(set: SetModel) -> Bool {
+		if let index = setsPersistent.firstIndex(of: set) {
+			setsPersistent.remove(at: index)
+			return true
+		} else {
+			return false
+		}
+	}
 }

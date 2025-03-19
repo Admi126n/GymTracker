@@ -23,6 +23,7 @@ struct TimePickerSheet: View {
 						Button("Done") {
 							dismiss()
 						}
+						.tint(.green)
 					}
 				}
 		}
