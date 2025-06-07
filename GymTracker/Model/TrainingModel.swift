@@ -50,4 +50,14 @@ final class TrainingModel {
 	func addExercise(_ exercise: ExerciseModel) {
 		exercisesPersistent.append(exercise)
 	}
+	
+	@discardableResult
+	func remove(exercise: ExerciseModel) -> Bool {
+		if let index = exercisesPersistent.firstIndex(of: exercise) {
+			exercisesPersistent.remove(at: index)
+			return true
+		} else {
+			return false
+		}
+	}
 }

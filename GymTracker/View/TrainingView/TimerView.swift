@@ -9,17 +9,19 @@ import SwiftUI
 
 struct TimerView: View {
 	
+	let font: Font
 	let date: Date
 	
 	var body: some View {
 		Text(Date(timeIntervalSinceNow: date.timeIntervalSince1970 - Date().timeIntervalSince1970), style: .timer)
-			.font(.title)
+			.font(font)
 			.fontDesign(.rounded)
 			.bold()
 	}
 	
-	init(from date: Date) {
+	init(from date: Date, font: Font = .title) {
 		self.date = date
+		self.font = font
 	}
 }
 

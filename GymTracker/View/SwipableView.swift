@@ -60,7 +60,7 @@ struct SwipableView<Content: View>: View {
 				}
 			}
 			.clipShape(.rect(cornerRadius: cornerRadius, style: .continuous))
-			.highPriorityGesture(dragGesture)
+			.simultaneousGesture(dragGesture)
 	}
 	
 	init(cornerRadius: CGFloat = 10, actions: [SwipableViewAction], @ViewBuilder content: () -> Content) {
@@ -77,6 +77,11 @@ struct SwipableView<Content: View>: View {
 	
 	private func onGestureChanged(_ value: DragGesture.Value) {
 		guard !actions.isEmpty else { return }
+		
+		let horizontal = abs(value.translation.width)
+		let vertical = abs(value.translation.height)
+		
+		guard horizontal > vertical else { return }
 		
 		if !isDraggind {
 			startOffset = offset

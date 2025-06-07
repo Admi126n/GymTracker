@@ -18,35 +18,45 @@ struct ExerciseView: View {
 	let record: Double
 	let showTextField: Bool
 	let completion: () -> Void
+	let deleteExercise: (() -> Void)?
 	
 	var body: some View {
 		VStack(alignment: .leading) {
 			HStack {
-				VStack(alignment: .leading) {
-					Text(exercise.name)
-						.frame(maxWidth: .infinity, alignment: .leading)
-						.font(.title2)
-				
-					if exercise.seatHeight == nil {
-						Button {
-							showAlert = true
-						} label: {
-							Text("Add seat height")
-								.font(.footnote)
-						}
-						.tint(.green)
-					} else {
-						Button {
-							showAlert = true
-						} label: {
-							Text("Seat height: \(exercise.seatHeight!)")
-								.font(.footnote)
-						}
-						.tint(.green)
-					}
-				}
+				Text(exercise.name)
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.font(.title2)
 				
 				Spacer()
+				
+				Menu {
+					Button("Set seat height") {
+						showAlert = true
+					}
+					
+					Button("Delete", role: .destructive) {
+						withAnimation {
+							deleteExercise?()
+						}
+					}
+				} label: {
+					Label("Info", systemImage: "ellipsis.circle")
+						.labelStyle(.iconOnly)
+						.tint(.green)
+				}
+			}
+			.contentShape(.rect)
+			
+			if isExpanded {
+				if exercise.seatHeight != nil {
+					Button {
+						showAlert = true
+					} label: {
+						Text("Seat height: \(exercise.seatHeight!)")
+							.font(.footnote)
+					}
+					.tint(.green)
+				}
 				
 				if record != 0 {
 					if exercise.mainStat.isTimeReleated {
@@ -58,22 +68,6 @@ struct ExerciseView: View {
 					}
 				}
 				
-				if !showTextField {
-					Image(systemName: "chevron.up")
-						.rotationEffect(.init(degrees: isExpanded ? 0 : 180))
-						.foregroundStyle(.green)
-				}
-			}
-			.contentShape(.rect)
-			.onTapGesture {
-				if !showTextField {
-					withAnimation(.bouncy) {
-						isExpanded.toggle()
-					}
-				}
-			}
-			
-			if isExpanded {
 				Rectangle()
 					.frame(height: 1)
 					.foregroundStyle(.secondary)
@@ -82,6 +76,7 @@ struct ExerciseView: View {
 					SwipableView(cornerRadius: 10, action: .delete(action: {
 						exercise.remove(set: item)
 					})) {
+					
 						HStack {
 							Text("\(index + 1).")
 							
@@ -97,6 +92,25 @@ struct ExerciseView: View {
 			
 			if showTextField {
 				SetEditorView(exercise: exercise, completion: completion)
+			} else {
+				HStack {
+					Spacer()
+					
+					Image(systemName: "chevron.up")
+						.rotationEffect(.init(degrees: isExpanded ? 0 : 180))
+						.foregroundStyle(.green)
+					
+					Spacer()
+				}
+				.padding(.top, 4)
+				.contentShape(.rect)
+				.onTapGesture {
+					if !showTextField {
+						withAnimation(.bouncy) {
+							isExpanded.toggle()
+						}
+					}
+				}
 			}
 		}
 		.padding(16)
@@ -119,11 +133,13 @@ struct ExerciseView: View {
 	init(
 		exercise: ExerciseModel,
 		showTextField: Bool,
-		completion: @escaping () -> Void
+		completion: @escaping () -> Void,
+		deleteExercise: (() -> Void)? = nil
 	) {
 		self.exercise = exercise
 		self.showTextField = showTextField
 		self.completion = completion
+		self.deleteExercise = deleteExercise
 		self._isExpanded = State(initialValue: showTextField)
 		self._seatHeight = State(initialValue: exercise.seatHeight ?? "")
 		self.record = ExerciseRecordManager.shared.getBestForExerciseWith(uuid: exercise.uuid)

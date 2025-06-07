@@ -23,6 +23,11 @@ struct TrainingView: View {
 			VStack {
 				TimerView(from: Date(timeIntervalSince1970: training.startDate))
 				
+				if let exercise = training.exercises.last,
+				   let set = exercise.sets.last {
+					TimerView(from: Date(timeIntervalSince1970: set.timestamp), font: .body)
+				}
+				
 				Button("End training", role: .destructive) {
 					ExerciseRecordManager.shared.addOrUpdateStats(training.exercises)
 					training.finishTraining()
@@ -35,6 +40,8 @@ struct TrainingView: View {
 						ForEach(training.exercises) { exercise in
 							ExerciseView(exercise: exercise, showTextField: training.exercises.last == exercise) {
 								scrollToBottom(proxy)
+							} deleteExercise: {
+								training.remove(exercise: exercise)
 							}
 						}
 						

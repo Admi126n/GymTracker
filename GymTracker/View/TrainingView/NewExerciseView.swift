@@ -22,7 +22,7 @@ struct NewExerciseView: View {
 		if vModel.name.isEmpty {
 			return savedExercises.sorted { $0.name < $1.name }
 		} else {
-			return savedExercises.filter { $0.name.starts(with: vModel.name) }
+			return savedExercises.filter { $0.name.localizedCaseInsensitiveContains(vModel.name) }
 				.sorted { $0.name < $1.name }
 		}
 	}
