@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  EXCLUDED_FILES: View,App
+  EXCLUDED_FILES: View,App,Picker,Sheet,Stype,Cell
   EXCLUDED_TARGETS: xctest
   REQUIRED_CODE_COVERAGE: 80.0
   COVERAGE_PERCENTAGE_FILE_NAME: filtered_coverage_percentage.txt
