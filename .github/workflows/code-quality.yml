@@ -10,6 +10,7 @@ env:
   EXCLUDED_TARGETS: xctest
   REQUIRED_CODE_COVERAGE: 80.0
   COVERAGE_PERCENTAGE_FILE_NAME: filtered_coverage_percentage.txt
+  COVERAGE_SUMMARY_FILE_NAME: coverage_summary.txt
   SIMULATOR_NAME: iPhone 16
   SIMULATOR_OS: latest
 
@@ -61,7 +62,7 @@ jobs:
 
     - name: Generate filtered code coverage
       run: |
-        python3 .python/filter_coverage.py "$EXCLUDED_FILES" "$EXCLUDED_TARGETS" "$COVERAGE_PERCENTAGE_FILE_NAME"
+        python3 .python/filter_coverage.py "$EXCLUDED_FILES" "$EXCLUDED_TARGETS" "$COVERAGE_PERCENTAGE_FILE_NAME" "$COVERAGE_SUMMARY_FILE_NAME"
     
     - name: Upload coverage artifacts
       uses: actions/upload-artifact@v4
@@ -69,6 +70,7 @@ jobs:
         name: coverage-files
         path: |
           ${{env.COVERAGE_PERCENTAGE_FILE_NAME}}
+          ${{env.COVERAGE_SUMMARY_FILE_NAME}}
           coverage.json
 
   check-coverage:
@@ -89,7 +91,7 @@ jobs:
         echo "Computed coverage: $COVERAGE%"
         echo "Required coverage: $THRESHOLD%"
         if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
-          echo "Code coverage ($COVERAGE%) is below the threshold ($THRESHOLD%)!"
+          echo "Code coverage ($COVERAGE%) is below the threshold ($THRESHOLD%)"
           exit 1
         else
           echo "Code coverage ($COVERAGE%) meets the threshold ($THRESHOLD%)."
