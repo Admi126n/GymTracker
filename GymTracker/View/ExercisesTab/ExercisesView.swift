@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ExercisesView: View {
 	
-	@Query private var exercises: [Exercise]
+	@Query private var exercises: [ExerciseModel]
 	
 	@State private var searchText = ""
 	
@@ -29,13 +29,14 @@ struct ExercisesView: View {
 #Preview {
 	do {
 		let config = ModelConfiguration(isStoredInMemoryOnly: true)
-		let container = try ModelContainer(for: Exercise.self, configurations: config)
+		let container = try ModelContainer(for: ExerciseModel.self, configurations: config)
 		let exercises = [
-			Exercise(name: "Example", sets: [], options: []),
-			Exercise(name: "Example", sets: [], options: []),
-			Exercise(name: "Example", sets: [], options: []),
-			Exercise(name: "Example", sets: [], options: []),
-			Exercise(name: "Example", sets: [], options: [])
+			ExerciseModel(name: "Example", mainStat: .weight),
+			ExerciseModel(name: "Example", mainStat: .distance),
+			ExerciseModel(name: "Example", mainStat: .speed),
+			ExerciseModel(name: "Example", mainStat: .duration),
+			ExerciseModel(name: "Example", mainStat: .weight),
+			ExerciseModel(name: "Example", mainStat: .weight)
 		]
 		exercises.forEach {
 			container.mainContext.insert($0)

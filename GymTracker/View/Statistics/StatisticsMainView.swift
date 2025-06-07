@@ -10,12 +10,12 @@ import SwiftUI
 
 struct StatisticsMainView: View {
 	
-	@Query private var trainings: [Training]
-	@Query private var exercises: [Exercise]
+	@Query private var trainings: [TrainingModel]
+	@Query private var exercises: [ExerciseModel]
 	
     var body: some View {
 		VStack {
-			Text("Trainings count: \(trainings.count)")
+			Text("TrainingModels count: \(trainings.count)")
 			
 			Text("Exercises count: \(exercises.count)")
 		}

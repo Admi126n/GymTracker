@@ -10,92 +10,89 @@ import SwiftUI
 
 struct TrainingView: View {
 	
-	@Bindable var training: Training
+	@Bindable var training: TrainingModel
 	
 	@Environment(\.dismiss) var dismiss
 	
-	@State private var viewModel: ViewModel
+	@Namespace var bottomId
+	
+	@State private var showingNewExerciseView = false
 	
 	var body: some View {
-		ZStack {
-			Color.teal
-				.ignoresSafeArea(.all)
-			
+		NavigationStack {
 			VStack {
-				Text(training.name ?? "Unknown")
+				TimerView(from: Date(timeIntervalSince1970: training.startDate))
+				
+				if let exercise = training.exercises.last,
+				   let set = exercise.sets.last {
+					TimerView(from: Date(timeIntervalSince1970: set.timestamp), font: .body)
+				}
 				
 				Button("End training", role: .destructive) {
+					ExerciseRecordManager.shared.addOrUpdateStats(training.exercises)
+					training.finishTraining()
 					dismiss()
 				}
-				.buttonStyle(.bordered)
+				.buttonStyle(Pressable(background: .endButtonBackground, foreground: .red))
 				
-				ForEach(training.exercises) { exercise in
-					ExerciseView(showTextField: training.exercises.last == exercise, exercise: exercise, viewModel: viewModel)
+				ScrollViewReader { proxy in
+					ScrollView {
+						ForEach(training.exercises) { exercise in
+							ExerciseView(exercise: exercise, showTextField: training.exercises.last == exercise) {
+								scrollToBottom(proxy)
+							} deleteExercise: {
+								training.remove(exercise: exercise)
+							}
+						}
+						
+						Spacer()
+							.frame(minHeight: 100)
+							.id(bottomId)
+					}
 				}
-				
-				Spacer()
+				.containerRelativeFrame([.horizontal], alignment: .top)
 				
 				Button("Next exercise") {
-					viewModel.addExercise()
+					showingNewExerciseView.toggle()
 				}
-				.buttonStyle(.borderedProminent)
+				.buttonStyle(Pressable(background: .green, foreground: .background))
+				.padding(.bottom, 4)
 			}
-			.containerRelativeFrame([.horizontal], alignment: .top)
+			.sheet(isPresented: $showingNewExerciseView) {
+				NewExerciseView { newExercise in
+					training.addExercise(newExercise)
+				}
+				.presentationDetents([.medium, .large])
+			}
 		}
 	}
 	
-	init(training: Training) {
+	init(training: TrainingModel) {
 		self.training = training
-		self._viewModel = State(initialValue: ViewModel(training: training))
+	}
+	
+	private func scrollToBottom(_ proxy: ScrollViewProxy) {
+		withAnimation(.easeOut) {
+			proxy.scrollTo(bottomId, anchor: .top)
+		}
 	}
 }
 
 #Preview {
 	do {
 		let config = ModelConfiguration(isStoredInMemoryOnly: true)
-		let container = try ModelContainer(for: Training.self, configurations: config)
-		let training = Training(startDate: .now)
+		let container = try ModelContainer(for: TrainingModel.self, configurations: config)
+		let training = TrainingModel(startDate: .now)
+		let exercise = ExerciseModel(name: "Push ups", mainStat: .weight)
+		for _ in 0...10 {
+			exercise.addSet(stats: [.weight: 100])
+		}
+		
+		training.addExercise(exercise)
+		
 		return TrainingView(training: training)
 			.modelContainer(container)
 	} catch {
 		fatalError("Failed to create model container")
-	}
-}
-
-struct ExerciseView: View {
-	
-	let showTextField: Bool
-	
-	@Bindable var exercise: Exercise
-	
-	@State var noSeries = 0
-	@State var viewModel: TrainingView.ViewModel
-	
-	var body: some View {
-		VStack {
-			Text(exercise.name)
-				.frame(maxWidth: .infinity, alignment: .leading)
-			
-			ForEach(exercise.sets) {
-				Text("\($0.desc())")
-					.frame(maxWidth: .infinity, alignment: .leading)
-			}
-			
-			if showTextField {
-				HStack {
-					Text("\(exercise.sets.count + 1)")
-					
-					TextField("no reps", value: $noSeries, format: .number)
-					
-					Spacer()
-					
-					Button("Save", systemImage: "checkmark") {
-						viewModel.addExerciseSet(to: exercise)
-						noSeries = 0
-					}
-				}
-			}
-		}
-		.padding(.horizontal)
 	}
 }

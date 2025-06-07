@@ -12,14 +12,14 @@ struct StartView: View {
 	
 	@Environment(\.modelContext) var modelContext
 	
-	@State private var newTraining: Training?
+	@State private var newTraining: TrainingModel?
 	@State private var showingStats = false
 	
     var body: some View {
 		NavigationStack {
 			VStack {
 				Button("Start training") {
-					newTraining = Training(startDate: .now)
+					newTraining = TrainingModel(startDate: .now)
 					modelContext.insert(newTraining!)
 				}
 			}
@@ -38,8 +38,10 @@ struct StartView: View {
 				
 #if DEBUG
 				ToolbarItem(placement: .topBarLeading) {
-					Button("Clear model context", systemImage: "trash", action: resetModelContext)
-						.tint(.red)
+					Button("Clear model context", systemImage: "trash") { resetModelContext()
+						ExerciseRecordManager.shared.clearData()
+					}
+					.tint(.red)
 				}
 #endif
 			}
@@ -48,9 +50,9 @@ struct StartView: View {
 	
 	private func resetModelContext() {
 		do {
-			try modelContext.delete(model: Training.self)
-			try modelContext.delete(model: Exercise.self)
-			try modelContext.delete(model: ExerciseSet.self)
+			try modelContext.delete(model: TrainingModel.self)
+			try modelContext.delete(model: ExerciseModel.self)
+			try modelContext.delete(model: SetModel.self)
 		} catch {
 			print("Failed to clear model context.")
 		}
@@ -60,7 +62,7 @@ struct StartView: View {
 #Preview {
 	do {
 		let config = ModelConfiguration(isStoredInMemoryOnly: true)
-		let container = try ModelContainer(for: Training.self, configurations: config)
+		let container = try ModelContainer(for: TrainingModel.self, configurations: config)
 		return StartView()
 			.modelContainer(container)
 	} catch {
