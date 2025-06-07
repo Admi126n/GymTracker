@@ -13,29 +13,36 @@ import Testing
 struct ExerciseSetModelTests {
 	@Test func getMaxSetTest() {
 		let sets = [
-			ExerciseSetModel(mainStat: .init(type: .weight, value: 100)),
-			ExerciseSetModel(mainStat: .init(type: .weight, value: 110)),
-			ExerciseSetModel(mainStat: .init(type: .weight, value: 90)),
-			ExerciseSetModel(mainStat: .init(type: .weight, value: 101))
+			SetModel(mainStat: .weight, stats: [.weight: 100]),
+			SetModel(mainStat: .weight, stats: [.weight: 110]),
+			SetModel(mainStat: .weight, stats: [.weight: 90]),
+			SetModel(mainStat: .weight, stats: [.weight: 101])
 		]
 		
 		let result = sets.best()
 		
 		#expect(result != nil)
-		#expect(result!.mainStat.value == 110)
+		#expect(result!.mainStatValue == 110)
 	}
 	
 	@Test func getMaxSetForTimeLessIsBetterTest() {
 		let sets = [
-			ExerciseSetModel(mainStat: .init(type: .timeLessIsBetter, value: 100)),
-			ExerciseSetModel(mainStat: .init(type: .timeLessIsBetter, value: 110)),
-			ExerciseSetModel(mainStat: .init(type: .timeLessIsBetter, value: 90)),
-			ExerciseSetModel(mainStat: .init(type: .timeLessIsBetter, value: 101))
+			SetModel(mainStat: .speed, stats: [.speed: 100]),
+			SetModel(mainStat: .speed, stats: [.speed: 110]),
+			SetModel(mainStat: .speed, stats: [.speed: 90]),
+			SetModel(mainStat: .speed, stats: [.speed: 101])
 		]
 		
 		let result = sets.best()
 		
 		#expect(result != nil)
-		#expect(result!.mainStat.value == 90)
+		#expect(result!.mainStatValue == 90)
+	}
+	
+	@Test func getMainStatValueForMissingMainStat() {
+		let set = SetModel(mainStat: .weight, stats: [.weight: 100])
+		set.stats = [:]
+	
+		#expect(set.mainStatValue == 0)
 	}
 }
